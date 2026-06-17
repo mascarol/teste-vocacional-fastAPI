@@ -1,11 +1,13 @@
+from ast import List
 import mimetypes
 import os
 from pathlib import Path
 import random
-from fastapi import FastAPI # type: ignore
-import fastapi.staticfiles # type: ignore
-from pydantic import BaseModel # type: ignore
-from typing import List
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles  # 1. ADICIONE ESTE IMPORT
+from pydantic import BaseModel
+
+app = FastAPI()
 
 mimetypes.add_type('text/css', '.css')
 
@@ -16,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
-app.mount("/static", fastapi.staticfiles.StaticFiles(directory=STATIC_DIR, html=True), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 POOL_PERGUNTAS = [
     # --- EXATAS (1 a 25) ---
@@ -108,15 +110,8 @@ def obter_perguntas():
 def calcular_resultado(submissao: QuizSubmission):
     pontuacoes = {"exatas": 0.0, "humanas": 0.0, "biologicas": 0.0}
     mapa_perguntas = {p["id"]: p for p in POOL_PERGUNTAS}
-    
-    for item in submissao.respostas:
-        pergunta = mapa_perguntas.get(item.pergunta_id)
-        if pergunta:
-            area = pergunta["area"]
-            if item.escolha == "SIM":
-                pontuacoes[area] += PESOS_AREA.get(area, 3.0)
-            elif item.escolha == "TALVEZ":
-                pontuacoes[area] += 1.0
+    # ... (resto da sua lógica de cálculo de resultado) ...
+    return {"area_predominante": "humanas"} # Exemplo de retorno
 
     max_pontos = max(pontuacoes.values())
     areas_vencedoras = [area for area, pontos in pontuacoes.items() if pontos == max_pontos]
@@ -134,3 +129,4 @@ def calcular_resultado(submissao: QuizSubmission):
         "imagem_url": imagem_url,
         "pontuacoes": pontuacoes
     }
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
