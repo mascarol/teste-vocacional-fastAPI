@@ -100,7 +100,7 @@ class RespostaItem(BaseModel):
     escolha: str
 
 class QuizSubmission(BaseModel):
-    respostas: List[RespostaItem]
+    respostas: list[RespostaItem]
 
 @app.get("/api/perguntas")
 def obter_perguntas():
