@@ -1,3 +1,4 @@
+import mimetypes
 import os
 from pathlib import Path
 import random
@@ -5,6 +6,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List
+
+mimetypes.add_types ('text/css', '.css')
 
 app = FastAPI(title="Backend Teste Vocacional Claretiano")
 
