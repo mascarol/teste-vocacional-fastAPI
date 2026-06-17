@@ -1,0 +1,123 @@
+/* ----------------- Layout Geral ----------------- */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    background: url("https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e01cde6149c8712329256750-Fundo_Mobile_TesteVocacional_2025.png") no-repeat center center fixed;
+    background-size: cover;
+}
+#i746q {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#i746q input,
+#i746q select,
+#i746q textarea {
+    width: 100% !important;
+    max-width: 400px;
+    margin: 10px auto;
+    display: block;
+}
+/* Ocultar o campo de resultado interno se aplicável */
+.rb-content-form:has(textarea[name="processo.camposPersonalizados.campopersonalizado_180_compl_proc"]) {
+    display: none !important;
+}
+/* ----------------- Header ----------------- */
+header {
+    background-color: #003263;
+    color: #f3f3f3;
+    padding: 20px 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+h1 {
+    margin: 0;
+    font-size: 2em;
+}
+/* ----------------- Quiz ----------------- */
+#quiz {
+    margin-top: 30px;
+}
+.question {
+    background-color: #f3f3f3;
+    border-left: 8px solid #0030a6;
+    padding: 15px 20px;
+    margin: 15px auto;
+    max-width: 700px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(3, 142, 197, 0.875);
+    transition: background-color 0.3s ease;
+}
+.question.respondida {
+    background-color: #fcebcd;
+}
+.question p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+/* ----------------- Botões ----------------- */
+.widget {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+}
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    vertical-align: middle;
+    background-color: #3cb4e7;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    margin: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    min-height: 36px;
+    flex: 1 1 auto;
+    max-width: 150px;
+}
+.btn:hover {
+    background-color: #0030a6;
+}
+.btn.selecionado {
+    background-color: #febb86;
+    color: #003263;
+    border: 2px solid #0030a6;
+}
+/* ----------------- Resultado ----------------- */
+#resultado {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #003263;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    display: none;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#btnResultado {
+    background-color: #003263;
+    color: white;
+    padding: 12px 24px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+}
+#btnResultado:hover {
+    background-color: #0050a0;
+    transform: translateY(-2px);
+}

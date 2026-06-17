@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Vocacional Claretiano</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Teste Vocacional</h1>
+    </header>
+
+    <main id="quiz">
+        <div id="perguntas-container"></div>
+        
+        <button id="btnResultado" type="button">Ver Meu Resultado</button>
+    </main>
+
+    <div id="resultado"></div>
+
+    <script>
+        let perguntasSorteadas = [];
+        let respostasArmazenadas = [];
+
+        // Inicialização: Busca as perguntas sorteadas do backend
+        async function carregarQuiz() {
+            try {
+                const response = await fetch('/api/perguntas');
+                perguntasSorteadas = await response.json();
+                respostasArmazenadas = new Array(perguntasSorteadas.length);
+                renderizarPerguntas();
+            } catch (error) {
+                console.error("Erro ao obter perguntas do servidor Python:", error);
+            }
+        }
+
+        // Renderiza as perguntas mantendo rigorosamente as suas classes e estruturas visuais
+        function renderizarPerguntas() {
+            const container = document.getElementById('perguntas-container');
+            container.innerHTML = '';
+
+            perguntasSorteadas.forEach((p, i) => {
+                const divQuestao = document.createElement('div');
+                divQuestao.className = 'question';
+                divQuestao.id = `question-${p.id}`;
+                
+                divQuestao.innerHTML = `
+                    <p>${p.texto}</p>
+                    <div class="widget">
+                        <button class="btn" type="button" onclick="registrarResposta(${i}, ${p.id}, 'SIM', this)">SIM</button>
+                        <button class="btn" type="button" onclick="registrarResposta(${i}, ${p.id}, 'NÃO', this)">NÃO</button>
+                        <button class="btn" type="button" onclick="registrarResposta(${i}, ${p.id}, 'TALVEZ', this)">TALVEZ</button>
+                    </div>
+                `;
+                container.appendChild(divQuestao);
+            });
+        }
+
+        // Trata as ações dos botões preservando as animações e marcações de classe originais
+        function registrarResposta(indice, perguntaId, valor, botaoClicado) {
+            respostasArmazenadas[indice] = {
+                pergunta_id: perguntaId,
+                escolha: valor === 'NÃO' ? 'NAO' : valor
+            };
+
+            // Remove a classe selecionado dos outros botões do widget
+            const botoes = botaoClicado.closest(".widget").querySelectorAll(".btn");
+            botoes.forEach(b => b.classList.remove("selecionado"));
+
+            // Destaca o botão atual e marca a questão como concluída
+            botaoClicado.classList.add("selecionado");
+            botaoClicado.closest(".question").classList.add("respondida");
+        }
+
+        // Envia as respostas limpas para cálculo no Python
+        document.getElementById('btnResultado').addEventListener('click', async () => {
+            const respondidasCount = respostasArmazenadas.filter(r => r !== undefined).length;
+            
+            if (respondidasCount !== perguntasSorteadas.length) {
+                alert("Por favor, responda todas as perguntas antes de ver o resultado.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/resultado', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ respostas: respostasArmazenadas })
+                });
+
+                const data = await response.json();
+                exibirResultadoVisual(data);
+            } catch (error) {
+                alert("Ocorreu um erro ao processar seu resultado no servidor.");
+            }
+        });
+
+        // Mostra o resultado final na tela de forma elegante e centralizada
+        function exibirResultadoVisual(res) {
+            const resultadoDiv = document.getElementById("resultado");
+            
+            resultadoDiv.innerHTML = `
+                <p style="font-size:1.2em; margin-top:10px; font-weight:bold;">${res.imagem_url ? 'Seu Perfil Predominante Calculado!' : res.texto_completo}</p>
+                ${res.imagem_url ? `<img src="${res.imagem_url}" style="max-width:100%; margin-top:20px; border-radius:10px;">` : ""}
+            `;
+            
+            resultadoDiv.style.display = "block";
+            resultadoDiv.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Inicializa ao carregar a página
+        document.addEventListener("DOMContentLoaded", carregarQuiz);
+    </script>
+</body>
+</html>
