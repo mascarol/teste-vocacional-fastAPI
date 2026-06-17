@@ -2,10 +2,18 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     text-align: center;
-    background: url("https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e01cde6149c8712329256750-Fundo_Mobile_TesteVocacional_2025.png") no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(135deg, #003263 0%, #0050a0 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+@media (min-width: 768px) {
+    body {
+        background: url("https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e01cde6149c8712329256750-Fundo_Mobile_TesteVocacional_2025.png") no-repeat center center fixed;
+        background-size: cover;
+    }
 }
 #i746q {
     display: flex;
@@ -24,48 +32,93 @@ body {
 .rb-content-form:has(textarea[name="processo.camposPersonalizados.campopersonalizado_180_compl_proc"]) {
     display: none !important;
 }
+
 /* ----------------- Header ----------------- */
 header {
     background-color: #003263;
     color: #f3f3f3;
-    padding: 20px 0;
-    border-radius: 10px;
+    padding: 15px;
+    border-radius: 0;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
+
 h1 {
     margin: 0;
-    font-size: 2em;
+    font-size: 1.8em;
+    word-wrap: break-word;
 }
-/* ----------------- Quiz ----------------- */
+
+@media (min-width: 768px) {
+    header {
+        padding: 20px 0;
+        border-radius: 10px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+}
+/* Ocultar o campo de resultado interno se aplicável */
+.rb-content-form:has(textarea[name="processo.camposPersonalizados.campopersonalizado_180_compl_proc"]) {
+    display: none !important;
+}
+
+/* Quiz Container - Mobile First */
 #quiz {
-    margin-top: 30px;
+    margin-top: 10px;
+    padding: 0 10px;
 }
+
 .question {
     background-color: #f3f3f3;
-    border-left: 8px solid #0030a6;
-    padding: 15px 20px;
-    margin: 15px auto;
-    max-width: 700px;
+    border-left: 6px solid #0030a6;
+    padding: 12px 15px;
+    margin: 10px auto;
+    max-width: 100%;
+    width: 100%;
     text-align: center;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(3, 142, 197, 0.875);
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
 }
+
 .question.respondida {
     background-color: #fcebcd;
 }
+
 .question p {
-    font-size: 1.1em;
-    margin-bottom: 10px;
+    font-size: 1em;
+    margin: 10px 0;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
-/* ----------------- Botões ----------------- */
+
+@media (min-width: 768px) {
+    #quiz {
+        margin-top: 30px;
+    }
+    
+    .question {
+        max-width: 700px;
+        border-left: 8px solid #0030a6;
+        padding: 15px 20px;
+        margin: 15px auto;
+    }
+    
+    .question p {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+}
+/* Botões - Mobile First */
 .widget {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     text-align: center;
 }
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -75,49 +128,102 @@ h1 {
     background-color: #3cb4e7;
     color: #fff;
     border: none;
-    padding: 8px 16px;
-    margin: 5px;
+    padding: 10px 12px;
+    margin: 0;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
-    min-height: 36px;
-    flex: 1 1 auto;
-    max-width: 150px;
+    min-height: 40px;
+    flex: 1 1 30%;
+    min-width: 70px;
+    font-size: 0.9em;
+    word-wrap: break-word;
 }
+
+.btn:active,
 .btn:hover {
     background-color: #0030a6;
 }
+
 .btn.selecionado {
     background-color: #febb86;
     color: #003263;
     border: 2px solid #0030a6;
 }
-/* ----------------- Resultado ----------------- */
+
+@media (min-width: 768px) {
+    .widget {
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        max-width: 150px;
+        font-size: 1em;
+    }
+}
+/* Resultado - Mobile First */
 #resultado {
-    margin-top: 20px;
-    font-size: 1.2em;
-    color: #003263;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 8px;
-    display: none;
-    max-width: 700px;
+    margin-top: 15px;
     margin-left: auto;
     margin-right: auto;
+    font-size: 1em;
+    color: #003263;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    display: none;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
+
+#resultado img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 15px;
+    border-radius: 10px;
+    display: block;
+}
+
 #btnResultado {
     background-color: #003263;
     color: white;
-    padding: 12px 24px;
-    font-size: 1.1em;
+    padding: 14px 20px;
+    font-size: 1em;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    margin-top: 20px;
+    margin-top: 15px;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: calc(100% - 20px);
+    max-width: 300px;
+    transition: all 0.2s ease;
 }
+
+#btnResultado:active,
 #btnResultado:hover {
     background-color: #0050a0;
     transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+    #resultado {
+        max-width: 700px;
+        font-size: 1.2em;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    #btnResultado {
+        width: auto;
+        padding: 12px 24px;
+        font-size: 1.1em;
+        margin-left: 0;
+        margin-right: 0;
+    }
 }

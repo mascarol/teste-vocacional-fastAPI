@@ -2,12 +2,12 @@ import mimetypes
 import os
 from pathlib import Path
 import random
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from fastapi import FastAPI # type: ignore
+import fastapi.staticfiles # type: ignore
+from pydantic import BaseModel # type: ignore
 from typing import List
 
-mimetypes.add_types ('text/css', '.css')
+mimetypes.add_type('text/css', '.css')
 
 app = FastAPI(title="Backend Teste Vocacional Claretiano")
 
@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+app.mount("/static", fastapi.staticfiles.StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 POOL_PERGUNTAS = [
     # --- EXATAS (1 a 25) ---
