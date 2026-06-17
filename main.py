@@ -2,21 +2,21 @@ import mimetypes
 import os
 from pathlib import Path
 import random
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from fastapi import FastAPI # type: ignore
+import fastapi.staticfiles # type: ignore
+from pydantic import BaseModel # type: ignore
 from typing import List
 
-mimetypes.add_types ('text/css', '.css')
+mimetypes.add_type('text/css', '.css')
 
-app = FastAPI(title="Backend Teste Vocacional Claretiano")
+app = FastAPI(title="Backend Teste Vocacional")
 
 # --- AJUSTE DOS CAMINHOS DINÂMICOS ---
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+app.mount("/static", fastapi.staticfiles.StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 POOL_PERGUNTAS = [
     # --- EXATAS (1 a 25) ---
@@ -24,7 +24,7 @@ POOL_PERGUNTAS = [
     {"id": 2, "texto": "Tenho interesse em entender como as coisas funcionam", "area": "exatas"},
     {"id": 3, "texto": "Me interesso por tecnologia, máquinas ou computadores", "area": "exatas"},
     {"id": 4, "texto": "Gosto de experiências práticas e trabalhar com as mãos", "area": "exatas"},
-    {"id": 5, "texto": "Tenho facilidade com numbers e cálculos", "area": "exatas"},
+    {"id": 5, "texto": "Tenho facilidade com números e cálculos", "area": "exatas"},
     {"id": 6, "texto": "Gosto de observar e analisar dados, gráficos ou informações", "area": "exatas"},
     {"id": 7, "texto": "Aprendo rápido quando o assunto envolve prática", "area": "exatas"},
     {"id": 8, "texto": "Consigo focar por longos períodos em algo que gosto", "area": "exatas"},
