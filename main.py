@@ -1,24 +1,23 @@
-from ast import List
 import mimetypes
-import os
-from pathlib import Path
 import random
+from pathlib import Path
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles  # 1. ADICIONE ESTE IMPORT
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-app = FastAPI()
-
+# Garante que o navegador entenda os arquivos CSS corretamente
 mimetypes.add_type('text/css', '.css')
 
 app = FastAPI(title="Backend Teste Vocacional")
 
-# --- AJUSTE DOS CAMINHOS DINÂMICOS ---
+# --- CONFIGURAÇÃO DOS CAMINHOS DINÂMICOS ---
 BASE_DIR = Path(__file__).resolve().parent
+
+# Se o seu index.html e arquivos estáticos estiverem dentro de uma pasta chamada "static",
+# mantenha a configuração abaixo. Se estiverem soltos na pasta principal, mude para: STATIC_DIR = BASE_DIR
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 POOL_PERGUNTAS = [
     # --- EXATAS (1 a 25) ---
@@ -42,7 +41,7 @@ POOL_PERGUNTAS = [
     {"id": 18, "texto": "Gosto de pesquisar, analisar, classificar, calcular, estudar", "area": "exatas"},
     {"id": 19, "texto": "Prefiro analisar com detalhes antes de decidir", "area": "exatas"},
     {"id": 20, "texto": "Gosto de construir, consertar e criar coisas", "area": "exatas"},
-    {"id": 21, "texto": "Eu me sinto mais confortável quando tenho tempo de estudar uma situação para achar uma solução", "area": "exatas"},
+    {"id": 21, "toggle": "Eu me sinto mais confortável quando tenho tempo de estudar uma situação para achar uma solução", "area": "exatas"},
     {"id": 22, "texto": "Gosto de agir, transportar, embalar, desmontar, construir, agilizar", "area": "exatas"},
     {"id": 23, "texto": "Gosto de ser justo, de criticar com fatos e dados, mesmo que isso desagrade às pessoas", "area": "exatas"},
     {"id": 24, "texto": "Sinto-me mais confortável lidando com coisas rotineiras e previsíveis", "area": "exatas"},
@@ -50,7 +49,7 @@ POOL_PERGUNTAS = [
     
     # --- BIOLÓGICAS (26 a 40) ---
     {"id": 26, "texto": "Gosto de cuidar da saúde e do bem-estar de outras pessoas", "area": "biologicas"},
-    {"id": 27, "texto": "Sinto satisfação em ajudar alguém que está passando por um problema físico ou emocional", "area": "biologicas"},
+    {"id": 27, "texto": "Sinto satisfação em ajudar alguém que está passando por um problema físico ou emotional", "area": "biologicas"},
     {"id": 28, "texto": "Tenho interesse em entender como o corpo humano funciona", "area": "biologicas"},
     {"id": 29, "texto": "Tenho curiosidade em saber como as doenças surgem e como podem ser tratadas", "area": "biologicas"},
     {"id": 30, "texto": "Gosto de aprender sobre biologia, anatomia, química ou fisiologia", "area": "biologicas"},
@@ -78,7 +77,7 @@ POOL_PERGUNTAS = [
     {"id": 50, "texto": "Gosto de registrar e manter meu material escolar organizado", "area": "humanas"},
     {"id": 51, "texto": "Eu prefiro abrir mão da minha opinião a criar um conflito entre as pessoas", "area": "humanas"},
     {"id": 52, "texto": "Eu valorizo as críticas, sugestões e opiniões dos outros quando são ditas de maneira amigável", "area": "humanas"},
-    {"id": 53, "texto": "Numa discussão é mais importante, para mim, manter a harmonia entre as pessoas do que ganhar a discussão", "area": "humanas"},
+    {"id": 53, "texto": "Numa discussão é mais importante, para CLI, manter a harmonia entre as pessoas do que ganhar a discussão", "area": "humanas"},
     {"id": 54, "texto": "Numa discussão com muitas opiniões diferentes a melhor alternativa para resolver rapidamente é fazer uma votação", "area": "humanas"},
     {"id": 55, "texto": "Gosto de trabalhar com ideias, teorias e informação", "area": "humanas"}
 ]
@@ -110,15 +109,27 @@ def obter_perguntas():
 def calcular_resultado(submissao: QuizSubmission):
     pontuacoes = {"exatas": 0.0, "humanas": 0.0, "biologicas": 0.0}
     mapa_perguntas = {p["id"]: p for p in POOL_PERGUNTAS}
-    # ... (resto da sua lógica de cálculo de resultado) ...
-    return {"area_predominante": "humanas"} # Exemplo de retorno
-
+    
+    # 1. Calcula a pontuação somando os pesos de cada resposta positiva
+    for item in submissao.respostas:
+        pergunta = mapa_perguntas.get(item.pergunta_id)
+        if pergunta:
+            area = pergunta["area"]
+            peso = PESOS_AREA.get(area, 1.0)
+            
+            if item.escolha.upper() == "SIM":
+                pontuacoes[area] += 1.0 * peso
+            elif item.escolha.upper() == "TALVEZ":
+                pontuacoes[area] += 0.5 * peso  # Talvez soma metade do peso
+                
+    # 2. Define a área com maior pontuação
     max_pontos = max(pontuacoes.values())
     areas_vencedoras = [area for area, pontos in pontuacoes.items() if pontos == max_pontos]
     
     imagem_url = ""
     if len(areas_vencedoras) > 1:
-        resultado_texto = f"Você tem aptidão para múltiplas áreas: {', '.join(areas_vencedoras)}!"
+        resultado_texto = f"Você tem aptidão para múltiplas áreas: {', '.join(areas_vencedoras).upper()}!"
+        imagem_url = IMAGENS_RESULTADO.get(areas_vencedoras[0], "")
     else:
         resultado_texto = f"Seu perfil predominante é: {areas_vencedoras[0].upper()}"
         imagem_url = IMAGENS_RESULTADO.get(areas_vencedoras[0], "")
@@ -129,4 +140,5 @@ def calcular_resultado(submissao: QuizSubmission):
         "imagem_url": imagem_url,
         "pontuacoes": pontuacoes
     }
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="site-principal")
