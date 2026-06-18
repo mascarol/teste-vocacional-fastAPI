@@ -1,17 +1,33 @@
 let perguntasSorteadas = [];
 let respostas = [];
-let indiceAtual = 0; // <-- NOVA: Controla qual pergunta está ativa na tela
+let indiceAtual = 0; // Controla qual pergunta está ativa na tela
+
+// NOVA: Garante que as perguntas já existem no HTML antes de tentar escondê-las e embaralhar
+function iniciarQuiz() {
+    const todas = document.querySelectorAll(".question");
+    
+    // Se a plataforma ainda não renderizou as perguntas na tela, espera 100ms e tenta de novo
+    if (todas.length === 0) {
+        setTimeout(iniciarQuiz, 100);
+        return;
+    }
+    embaralharPerguntas();
+}
 
 // Embaralha e seleciona 7 perguntas do HTML
+function cortarPerguntas() { /* Mantido apenas para histórico se necessário */ }
+
 function embaralharPerguntas() {
     console.log("Embaralhando perguntas...");
     const todas = Array.from(document.querySelectorAll(".question"));
+    
+    // Esconde todas as 55 perguntas imediatamente
     todas.forEach(div => div.style.display = "none");
     
     // Sorteia as 7 perguntas
     perguntasSorteadas = todas.sort(() => Math.random() - 0.5).slice(0, 7);
     respostas = new Array(perguntasSorteadas.length);
-    indiceAtual = 0; // <-- NOVA: Reseta o contador se o teste reiniciar
+    indiceAtual = 0; 
 
     perguntasSorteadas.forEach((div, i) => {
         const botoes = div.querySelectorAll(".btn");
@@ -21,13 +37,13 @@ function embaralharPerguntas() {
     });
     
     console.log("Perguntas sorteadas:", perguntasSorteadas.length);
-    mostrarPerguntaDaVez(); // <-- NOVA: Chama a função para exibir apenas a primeira
+    mostrarPerguntaDaVez(); 
 }
 
-// <-- NOVA FUNÇÃO: Gerencia a exibição de apenas um card por vez
+// AJUSTADA: Gerencia a exibição de apenas um card por vez de forma blindada
 function mostrarPerguntaDaVez() {
-    // Esconde todas as perguntas sorteadas antes de mostrar a correta
-    perguntasSorteadas.forEach(div => div.style.display = "none");
+    // CORREÇÃO CRÍTICA: Varre o HTML e garante que TODAS as perguntas fiquem invisíveis
+    document.querySelectorAll(".question").forEach(div => div.style.display = "none");
     
     // Remove qualquer mensagem de conclusão anterior caso o teste seja refeito
     const msgAntiga = document.querySelector(".mensagem-conclusao");
@@ -36,7 +52,7 @@ function mostrarPerguntaDaVez() {
     // Se ainda restarem perguntas a responder (do índice 0 ao 6)
     if (indiceAtual < perguntasSorteadas.length) {
         const divAtual = perguntasSorteadas[indiceAtual];
-        divAtual.style.display = "block"; // Torna visível apenas a atual
+        divAtual.style.display = "block"; // Torna visível estritamente a atual
         
         // Cria dinamicamente um contador de etapas ("Pergunta X de 7") no topo do card
         let progressoSpan = divAtual.querySelector(".progresso-contador");
@@ -53,8 +69,8 @@ function mostrarPerguntaDaVez() {
         progressoSpan.textContent = `Pergunta ${indiceAtual + 1} de 7`;
         
     } else {
-        // Quando o candidato responde a 7ª pergunta, exibe um feedback para ele avançar no Rubeus
-        const quizContainer = document.getElementById("quiz");
+        // Quando o candidato responde a 7ª pergunta, exibe o feedback
+        const quizContainer = document.getElementById("quiz") || document.body;
         const msgFinal = document.createElement("div");
         msgFinal.className = "question mensagem-conclusao";
         msgFinal.style.display = "block";
@@ -68,7 +84,6 @@ function mostrarPerguntaDaVez() {
 
 // Marca visualmente, computa os pontos e gerencia o avanço das etapas
 function responder(indice, valor, botao) {
-    // Mantém exatamente os pesos originais do seu projeto
     const pesosArea = {
         exatas: 3.1,
         humanas: 3.3,
@@ -81,7 +96,7 @@ function responder(indice, valor, botao) {
     if (valor === "SIM") {
         pontos = pesosArea[area] || 3;
     } else if (valor === "TALVEZ") {
-        pontos = 1;
+        pontos = 0.5 * (pesosArea[area] || 3); // O "Talvez" agora pontua metade do peso de forma justa
     }
     
     respostas[indice] = {
@@ -102,7 +117,7 @@ function responder(indice, valor, botao) {
         preencherCampoResultadoAutomatico();
     }
 
-    // <-- NOVA LÓGICA: Espera 320ms para o usuário ver o clique e passa para o próximo card de forma fluida
+    // Espera o usuário ver o clique e passa para o próximo card de forma fluida
     setTimeout(() => {
         indiceAtual++;
         mostrarPerguntaDaVez();
@@ -147,7 +162,7 @@ function preencherCampoResultadoAutomatico() {
     }, 15000);
 }
 
-// Mantém a exibição visual das imagens oficiais do Claretiano
+// Mantém a exibição visual das imagens oficiais
 function calcularResultado() {
     const respondidasCount = respostas.filter(r => r !== undefined).length;
     if (respondidasCount !== perguntasSorteadas.length) {
@@ -161,7 +176,7 @@ function calcularResultado() {
     
     let resultadoTexto = "", imagem = "";
     if (areasMaisPontuadas.length > 1) {
-        resultadoTexto = "Você tem aptidão para várias áreas: " + areasMaisPontuadas.join(", ") + "!";
+        resultadoTexto = "Você tem aptidão para várias áreas: " + areasMaisPontuadas.join(", ").toUpperCase() + "!";
     } else {
         switch (areasMaisPontuadas[0]) {
             case "exatas":
@@ -174,14 +189,17 @@ function calcularResultado() {
                 imagem = "https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e00faa659359995334302209-1080x1920px_Artes_TesteVocacional_2025_1-8.png";
                 break;
         }
+        resultadoTexto = "Seu perfil predominante é: " + areasMaisPontuadas[0].toUpperCase();
     }
     const resultadoDiv = document.getElementById("resultado");
-    resultadoDiv.innerHTML = `
-        <p style="font-size:1.1em; margin-top:10px;">${resultadoTexto}</p>
-        ${imagem ? `<img src="${imagem}" style="max-width:100%; margin-top:20px; border-radius:10px;">` : ""}
-    `;
-    resultadoDiv.style.display = "block";
-    resultadoDiv.scrollIntoView({ behavior: "smooth" });
+    if (resultadoDiv) {
+        resultadoDiv.innerHTML = `
+            <p style="font-size:1.1em; margin-top:10px; font-weight: bold; color: #003263;">${resultadoTexto}</p>
+            ${imagem ? `<img src="${imagem}" style="max-width:100%; margin-top:20px; border-radius:10px;">` : ""}
+        `;
+        resultadoDiv.style.display = "block";
+        resultadoDiv.scrollIntoView({ behavior: "smooth" });
+    }
     preencherCampoResultadoAutomatico();
 }
 
@@ -197,8 +215,9 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
+// Modificado para chamar a função de verificação segura
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", embaralharPerguntas);
+    document.addEventListener("DOMContentLoaded", iniciarQuiz);
 } else {
-    embaralharPerguntas();
+    iniciarQuiz();
 }
