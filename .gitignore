@@ -1,12 +1,12 @@
-# Ignorar ambientes virtuais
-venv/
-.venv/
-env/
-
-# Ignorar caches do Python
+# Python cache
 __pycache__/
 *.pyc
 
-# Ignorar configurações de editores (opcional)
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Configurações locais de IDE
 .vscode/
 .idea/

@@ -1,24 +1,29 @@
-import mimetypes
 import os
 import random
 from pathlib import Path
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-# Garante que o navegador entenda os arquivos CSS e JS corretamente
-mimetypes.add_type('text/css', '.css')
-mimetypes.add_type('application/javascript', '.js')
+app = FastAPI()
 
-app = FastAPI(title="Backend Teste Vocacional")
+# ⚠️ Habilita o CORS para que qualquer frontend (de qualquer origem) consiga consumir sua API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- CONFIGURAÇÃO DOS CAMINHOS ---
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
-
+# Pool com as 55 perguntas originais
 POOL_PERGUNTAS = [
     # --- EXATAS (1 a 25) ---
     {"id": 1, "texto": "Gosto de resolver problemas de matemática ou lógica", "area": "exatas"},
@@ -94,6 +99,7 @@ IMAGENS_RESULTADO = {
     "biologicas": "https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e00faa659359995334302209-1080x1920px_Artes_TesteVocacional_2025_1-8.png"
 }
 
+# --- MODELOS DE ENTRADA (VALIDAÇÃO DE DADOS) ---
 class RespostaItem(BaseModel):
     pergunta_id: int
     escolha: str
@@ -101,12 +107,23 @@ class RespostaItem(BaseModel):
 class QuizSubmission(BaseModel):
     respostas: list[RespostaItem]
 
+
+# --- ENDPOINTS DA API ---
+
 @app.get("/api/perguntas")
-def obter_perguntas():
-    return random.sample(POOL_PERGUNTAS, 7)
+def obter_perguntas_sorteadas():
+    """
+    Sorteia 7 perguntas aleatórias do pool de 55 e envia para o frontend.
+    """
+    qtd_sorteio = min(len(POOL_PERGUNTAS), 7)
+    perguntas_sorteadas = random.sample(POOL_PERGUNTAS, qtd_sorteio)
+    return perguntas_sorteadas
 
 @app.post("/api/resultado")
 def calcular_resultado(submissao: QuizSubmission):
+    """
+    Processa as respostas recebidas do frontend, calcula os pesos e retorna o perfil ideal.
+    """
     pontuacoes = {"exatas": 0.0, "humanas": 0.0, "biologicas": 0.0}
     mapa_perguntas = {p["id"]: p for p in POOL_PERGUNTAS}
     
@@ -124,7 +141,6 @@ def calcular_resultado(submissao: QuizSubmission):
     max_pontos = max(pontuacoes.values())
     areas_vencedoras = [area for area, pontos in pontuacoes.items() if pontos == max_pontos]
     
-    imagem_url = ""
     if len(areas_vencedoras) > 1:
         resultado_texto = f"Você tem aptidão para múltiplas áreas: {', '.join(areas_vencedoras).upper()}!"
         imagem_url = IMAGENS_RESULTADO.get(areas_vencedoras[0], "")
@@ -139,19 +155,22 @@ def calcular_resultado(submissao: QuizSubmission):
         "pontuacoes": pontuacoes
     }
 
-# --- SISTEMA INTELIGENTE DE ROTAS ESTÁTICAS (RESOLVE O PROBLEMA DO CSS) ---
 
-# 1. Rota para a página inicial (Entrega o index.html esteja ele na raiz ou dentro de /static)
+# --- ROTEAMENTO DE ARQUIVOS ESTÁTICOS ---
+
 @app.get("/")
 def pagina_inicial():
+    """
+    Entrega o index.html principal de forma inteligente.
+    """
     if os.path.exists(BASE_DIR / "index.html"):
         return FileResponse(BASE_DIR / "index.html")
     elif os.path.exists(STATIC_DIR / "index.html"):
         return FileResponse(STATIC_DIR / "index.html")
     return {"erro": "index.html nao foi encontrado em nenhuma pasta."}
 
-# 2. Mapeia a pasta /static (Caso o HTML procure por "static/style.css")
+# Mapeia a pasta /static (Caso o HTML procure por "static/style.css")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# 3. Mapeia a raiz do projeto (Caso o HTML procure por "style.css" direto na pasta principal)
+# Mapeia a raiz do projeto (Caso o HTML procure por "style.css" na pasta principal)
 app.mount("/", StaticFiles(directory=BASE_DIR), name="raiz")

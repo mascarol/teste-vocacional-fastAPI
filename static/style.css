@@ -7,6 +7,17 @@ body {
     background: url("https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e01cde6149c8712329256750-Fundo_Mobile_TesteVocacional_2025.png") no-repeat center center fixed;
     background-size: cover;
 }
+
+/* Container Principal onde o JavaScript vai injetar os cards */
+#quiz-container {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px; /* Garante que a tela não fique "piscando" na transição */
+}
+
 #i746q {
     display: flex;
     flex-direction: column;
@@ -20,10 +31,12 @@ body {
     margin: 10px auto;
     display: block;
 }
-/* Ocultar o campo de resultado interno se aplicável */
+
+/* Ocultar campos internos de CRM se aplicável */
 .rb-content-form:has(textarea[name="processo.camposPersonalizados.campopersonalizado_180_compl_proc"]) {
     display: none !important;
 }
+
 /* ----------------- Header ----------------- */
 header {
     background-color: #003263;
@@ -31,41 +44,61 @@ header {
     padding: 20px 0;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-width: 700px;
+    margin: 0 auto;
 }
 h1 {
     margin: 0;
     font-size: 2em;
 }
-/* ----------------- Quiz ----------------- */
-#quiz {
-    margin-top: 30px;
-}
-.question {
-    background-color: #f3f3f3;
+
+/* ----------------- Novo Quiz Card (Agnóstico) ----------------- */
+.quiz-card {
+    background-color: rgba(243, 243, 243, 0.95); /* Leve transparência para integrar com o fundo */
     border-left: 8px solid #0030a6;
-    padding: 15px 20px;
+    padding: 25px 30px;
     margin: 15px auto;
+    width: 100%;
     max-width: 700px;
     text-align: center;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(3, 142, 197, 0.875);
-    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 15px rgba(3, 142, 197, 0.4);
+    box-sizing: border-box;
+    
+    /* Animação suave de entrada do card */
+    animation: surgiráCard 0.4s ease-out forwards;
 }
-.question.respondida {
-    background-color: #fcebcd;
+
+/* Texto da Pergunta dentro do Card */
+.pergunta-texto {
+    font-size: 1.3em;
+    color: #003263;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    line-height: 1.4;
 }
-.question p {
-    font-size: 1.1em;
-    margin-bottom: 10px;
+
+/* Contador de Progresso (ex: Pergunta 1 de 7) */
+.progresso-contador {
+    display: block;
+    font-size: 0.95em;
+    color: #0030a6;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
 }
+
 /* ----------------- Botões ----------------- */
-.widget {
+.botoes-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 15px;
     text-align: center;
 }
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -75,49 +108,63 @@ h1 {
     background-color: #3cb4e7;
     color: #fff;
     border: none;
-    padding: 8px 16px;
-    margin: 5px;
-    border-radius: 4px;
+    padding: 12px 24px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 1em;
     transition: all 0.2s ease;
-    min-height: 36px;
-    flex: 1 1 auto;
-    max-width: 150px;
+    min-height: 44px;
+    flex: 1 1 140px; /* Distribui melhor os botões em telas mobile */
+    max-width: 160px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
 .btn:hover {
     background-color: #0030a6;
-}
-.btn.selecionado {
-    background-color: #febb86;
-    color: #003263;
-    border: 2px solid #0030a6;
-}
-/* ----------------- Resultado ----------------- */
-#resultado {
-    margin-top: 20px;
-    font-size: 1.2em;
-    color: #003263;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 8px;
-    display: none;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-}
-#btnResultado {
-    background-color: #003263;
-    color: white;
-    padding: 12px 24px;
-    font-size: 1.1em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 20px;
-}
-#btnResultado:hover {
-    background-color: #0050a0;
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn.selecionado {
+    background-color: #febb86 !important;
+    color: #003263 !important;
+    border: 2px solid #0030a6;
+    transform: scale(1.05);
+}
+
+/* ----------------- Estado de Loading e Tela Final ----------------- */
+.loading {
+    font-size: 1.2em;
+    color: #ffffff;
+    font-weight: bold;
+    background-color: rgba(0, 48, 166, 0.8);
+    padding: 15px 30px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.resultado-final {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-left: 8px solid #ff9233; /* Cor de destaque para o resultado */
+}
+
+.resultado-final img {
+    margin-top: 15px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ----------------- Animações Keyframes ----------------- */
+@keyframes surgiráCard {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
