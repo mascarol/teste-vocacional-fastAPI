@@ -1,20 +1,20 @@
 import mimetypes
+import os
 import random
 from pathlib import Path
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-# Garante que o navegador entenda os arquivos CSS corretamente
+# Garante que o navegador entenda os arquivos CSS e JS corretamente
 mimetypes.add_type('text/css', '.css')
+mimetypes.add_type('application/javascript', '.js')
 
 app = FastAPI(title="Backend Teste Vocacional")
 
-# --- CONFIGURAÇÃO DOS CAMINHOS DINÂMICOS ---
+# --- CONFIGURAÇÃO DOS CAMINHOS ---
 BASE_DIR = Path(__file__).resolve().parent
-
-# Se o seu index.html e arquivos estáticos estiverem dentro de uma pasta chamada "static",
-# mantenha a configuração abaixo. Se estiverem soltos na pasta principal, mude para: STATIC_DIR = BASE_DIR
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
@@ -41,15 +41,15 @@ POOL_PERGUNTAS = [
     {"id": 18, "texto": "Gosto de pesquisar, analisar, classificar, calcular, estudar", "area": "exatas"},
     {"id": 19, "texto": "Prefiro analisar com detalhes antes de decidir", "area": "exatas"},
     {"id": 20, "texto": "Gosto de construir, consertar e criar coisas", "area": "exatas"},
-    {"id": 21, "toggle": "Eu me sinto mais confortável quando tenho tempo de estudar uma situação para achar uma solução", "area": "exatas"},
+    {"id": 21, "texto": "Eu me sinto mais confortável quando tenho tempo de estudar uma situação para achar uma solução", "area": "exatas"},
     {"id": 22, "texto": "Gosto de agir, transportar, embalar, desmontar, construir, agilizar", "area": "exatas"},
     {"id": 23, "texto": "Gosto de ser justo, de criticar com fatos e dados, mesmo que isso desagrade às pessoas", "area": "exatas"},
     {"id": 24, "texto": "Sinto-me mais confortável lidando com coisas rotineiras e previsíveis", "area": "exatas"},
-    {"id": 25, "texto": "Gosto de atividades dinâmicas e com ação", "area": "exatas"},
+    {"id": 25, "texto": "Gosto de atividades dinâmicas e com action", "area": "exatas"},
     
     # --- BIOLÓGICAS (26 a 40) ---
     {"id": 26, "texto": "Gosto de cuidar da saúde e do bem-estar de outras pessoas", "area": "biologicas"},
-    {"id": 27, "texto": "Sinto satisfação em ajudar alguém que está passando por um problema físico ou emotional", "area": "biologicas"},
+    {"id": 27, "texto": "Sinto satisfação em ajudar alguém que está passando por um problema físico ou emocional", "area": "biologicas"},
     {"id": 28, "texto": "Tenho interesse em entender como o corpo humano funciona", "area": "biologicas"},
     {"id": 29, "texto": "Tenho curiosidade em saber como as doenças surgem e como podem ser tratadas", "area": "biologicas"},
     {"id": 30, "texto": "Gosto de aprender sobre biologia, anatomia, química ou fisiologia", "area": "biologicas"},
@@ -68,7 +68,7 @@ POOL_PERGUNTAS = [
     {"id": 41, "texto": "Gosto de ler, escrever ou conversar sobre ideias", "area": "humanas"},
     {"id": 42, "texto": "Gosto de desenhar, pintar ou criar coisas diferentes", "area": "humanas"},
     {"id": 43, "texto": "Tenho vontade de ajudar pessoas, ouvir e aconselhar", "area": "humanas"},
-    {"id": 44, "texto": "Consigo explicar bem uma idea ou assunto para os outros", "area": "humanas"},
+    {"id": 44, "texto": "Consigo explicar bem uma ideia ou assunto para os outros", "area": "humanas"},
     {"id": 45, "texto": "Tenho boa coordenação motora e sou cuidadoso(a) com detalhes", "area": "humanas"},
     {"id": 46, "texto": "Tenho criatividade para imaginar novas soluções ou ideias", "area": "humanas"},
     {"id": 47, "texto": "Lido bem com pessoas e sei trabalhar em grupo", "area": "humanas"},
@@ -77,7 +77,7 @@ POOL_PERGUNTAS = [
     {"id": 50, "texto": "Gosto de registrar e manter meu material escolar organizado", "area": "humanas"},
     {"id": 51, "texto": "Eu prefiro abrir mão da minha opinião a criar um conflito entre as pessoas", "area": "humanas"},
     {"id": 52, "texto": "Eu valorizo as críticas, sugestões e opiniões dos outros quando são ditas de maneira amigável", "area": "humanas"},
-    {"id": 53, "texto": "Numa discussão é mais importante, para CLI, manter a harmonia entre as pessoas do que ganhar a discussão", "area": "humanas"},
+    {"id": 53, "texto": "Numa discussão é mais importante, para mim, manter a harmonia entre as pessoas do que ganhar a discussão", "area": "humanas"},
     {"id": 54, "texto": "Numa discussão com muitas opiniões diferentes a melhor alternativa para resolver rapidamente é fazer uma votação", "area": "humanas"},
     {"id": 55, "texto": "Gosto de trabalhar com ideias, teorias e informação", "area": "humanas"}
 ]
@@ -110,7 +110,6 @@ def calcular_resultado(submissao: QuizSubmission):
     pontuacoes = {"exatas": 0.0, "humanas": 0.0, "biologicas": 0.0}
     mapa_perguntas = {p["id"]: p for p in POOL_PERGUNTAS}
     
-    # 1. Calcula a pontuação somando os pesos de cada resposta positiva
     for item in submissao.respostas:
         pergunta = mapa_perguntas.get(item.pergunta_id)
         if pergunta:
@@ -120,9 +119,8 @@ def calcular_resultado(submissao: QuizSubmission):
             if item.escolha.upper() == "SIM":
                 pontuacoes[area] += 1.0 * peso
             elif item.escolha.upper() == "TALVEZ":
-                pontuacoes[area] += 0.5 * peso  # Talvez soma metade do peso
+                pontuacoes[area] += 0.5 * peso
                 
-    # 2. Define a área com maior pontuação
     max_pontos = max(pontuacoes.values())
     areas_vencedoras = [area for area, pontos in pontuacoes.items() if pontos == max_pontos]
     
@@ -141,4 +139,19 @@ def calcular_resultado(submissao: QuizSubmission):
         "pontuacoes": pontuacoes
     }
 
-app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="site-principal")
+# --- SISTEMA INTELIGENTE DE ROTAS ESTÁTICAS (RESOLVE O PROBLEMA DO CSS) ---
+
+# 1. Rota para a página inicial (Entrega o index.html esteja ele na raiz ou dentro de /static)
+@app.get("/")
+def pagina_inicial():
+    if os.path.exists(BASE_DIR / "index.html"):
+        return FileResponse(BASE_DIR / "index.html")
+    elif os.path.exists(STATIC_DIR / "index.html"):
+        return FileResponse(STATIC_DIR / "index.html")
+    return {"erro": "index.html nao foi encontrado em nenhuma pasta."}
+
+# 2. Mapeia a pasta /static (Caso o HTML procure por "static/style.css")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# 3. Mapeia a raiz do projeto (Caso o HTML procure por "style.css" direto na pasta principal)
+app.mount("/", StaticFiles(directory=BASE_DIR), name="raiz")
