@@ -94,9 +94,9 @@ PESOS_AREA = {
 }
 
 IMAGENS_RESULTADO = {
-    "exatas": "https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e00fce7a5803827869407260-1080x1920px_Artes_TesteVocacional_2025_3-8.png",
-    "humanas": "https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e00fbb93a457117916344408-1080x1920px_Artes_TesteVocacional_2025_2-8.png",
-    "biologicas": "https://rbarquivos.apprbs.com.br/file/claretiano/Email/img/68e00faa659359995334302209-1080x1920px_Artes_TesteVocacional_2025_1-8.png"
+    "exatas": "/static/exatas.png",
+    "humanas": "/static/humanas.png",
+    "biologicas": "/static/biologicas.png"
 }
 
 # --- MODELOS DE ENTRADA (VALIDAÇÃO DE DADOS) ---
@@ -106,7 +106,6 @@ class RespostaItem(BaseModel):
 
 class QuizSubmission(BaseModel):
     respostas: list[RespostaItem]
-
 
 # --- ENDPOINTS DA API ---
 
