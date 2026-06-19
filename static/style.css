@@ -11,9 +11,8 @@ body {
     min-height: 100vh; /* Garante que o corpo ocupe toda a altura da tela */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centraliza o conteúdo verticalmente */
-    align-items: center;     /* Centraliza o conteúdo horizontalmente */
-    
+    justify-content: center;
+    align-items: center;    
     background-color: #07006d;
     background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), url('fundo1.png'); 
     background-repeat: no-repeat;
@@ -35,17 +34,17 @@ body {
    2. ESTILIZAÇÃO DO CARD DO QUIZ
    ========================================================================== */
 .quiz-card {
-    background: rgba(206, 198, 255, 0.795);
+    background: #041c4c;
     width: 100%;
     padding: 40px 35px;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); /* Sombra para dar profundidade */
-    border-left: 8px solid #0030a6; /* Borda estilizada com o azul do Claretiano */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    border-left: 8px solid #343dfc;
     transition: all 0.3s ease;
     animation: fadeIn 0.4s ease-out;
+    color: #ffffff;
 }
 
-/* Animação suave para quando a pergunta mudar */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -57,21 +56,20 @@ body {
     }
 }
 
-/* Contador de progresso (Ex: Pergunta 3 de 7) */
 .progresso-contador {
     display: block;
     text-transform: uppercase;
     font-size: 0.85em;
     font-weight: 700;
-    color: #0030a6;
+    color: #A5FBFF;
     letter-spacing: 1.5px;
     margin-bottom: 15px;
     text-align: center;
 }
 
 /* Texto da Pergunta */
-.pergunta-texto {
-    color: #0b1d3a;
+.pergunta-texto, .quiz-card h2, .quiz-card p {
+    color: #ffffff;
     font-size: 1.4em;
     font-weight: 600;
     line-height: 1.4;
@@ -139,6 +137,29 @@ body {
     padding: 15px 30px;
     border-radius: 30px;
     text-align: center;
+}
+
+.resultado-empate-texto {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.6;
+    margin: 20px;
+    padding: 20px;
+    max-width: 600px;
+    background: rgba(4, 28, 76, 0.7);
+    border-radius: 12px;
+    border: 1px solid #00f0ff;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.resultado-empate-texto span.area-destaque {
+    color: #ff007f;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
 }
 
 .resultado-final img {

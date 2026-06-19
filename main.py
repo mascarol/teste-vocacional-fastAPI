@@ -24,67 +24,72 @@ STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
 # Pool com as 55 perguntas originais
-POOL_PERGUNTAS = [
-    # --- EXATAS (1 a 25) ---
-    {"id": 1, "texto": "Gosto de resolver problemas de matemática ou lógica", "area": "exatas"},
-    {"id": 2, "texto": "Tenho interesse em entender como as coisas funcionam", "area": "exatas"},
-    {"id": 3, "texto": "Me interesso por tecnologia, máquinas ou computadores", "area": "exatas"},
-    {"id": 4, "texto": "Gosto de experiências práticas e trabalhar com as mãos", "area": "exatas"},
-    {"id": 5, "texto": "Tenho facilidade com números e cálculos", "area": "exatas"},
-    {"id": 6, "texto": "Gosto de observar e analisar dados, gráficos ou informações", "area": "exatas"},
-    {"id": 7, "texto": "Aprendo rápido quando o assunto envolve prática", "area": "exatas"},
-    {"id": 8, "texto": "Consigo focar por longos períodos em algo que gosto", "area": "exatas"},
-    {"id": 9, "texto": "Gosto de analisar as situações por meio de números, estatísticas e fatos concretos", "area": "exatas"},
-    {"id": 10, "texto": "Na solução de um problema, é melhor partir para a prática do que ficar discutindo e analisando", "area": "exatas"},
-    {"id": 11, "texto": "Sou prático e rápido nas minhas decisões", "area": "exatas"},
-    {"id": 12, "texto": "Eu gosto quando posso criticar uma ideia ou processo", "area": "exatas"},
-    {"id": 13, "texto": "Eu entendo melhor as coisas quando ver sua aplicação prática", "area": "exatas"},
-    {"id": 14, "texto": "Prefiro que me apreciem por ser uma pessoa racional do que por ser uma pessoa amiga", "area": "exatas"},
-    {"id": 15, "texto": "Eu gosto de trabalhar com ferramentas e máquinas", "area": "exatas"},
-    {"id": 16, "texto": "Gosto de relacionar as causas das coisas com os seus efeitos", "area": "exatas"},
-    {"id": 17, "texto": "Eu me sinto mais confortável em atividades que eu possa fazer com as minhas próprias mãos", "area": "exatas"},
-    {"id": 18, "texto": "Gosto de pesquisar, analisar, classificar, calcular, estudar", "area": "exatas"},
-    {"id": 19, "texto": "Prefiro analisar com detalhes antes de decidir", "area": "exatas"},
-    {"id": 20, "texto": "Gosto de construir, consertar e criar coisas", "area": "exatas"},
-    {"id": 21, "texto": "Eu me sinto mais confortável quando tenho tempo de estudar uma situação para achar uma solução", "area": "exatas"},
-    {"id": 22, "texto": "Gosto de agir, transportar, embalar, desmontar, construir, agilizar", "area": "exatas"},
-    {"id": 23, "texto": "Gosto de ser justo, de criticar com fatos e dados, mesmo que isso desagrade às pessoas", "area": "exatas"},
-    {"id": 24, "texto": "Sinto-me mais confortável lidando com coisas rotineiras e previsíveis", "area": "exatas"},
-    {"id": 25, "texto": "Gosto de atividades dinâmicas e com action", "area": "exatas"},
-    
-    # --- BIOLÓGICAS (26 a 40) ---
-    {"id": 26, "texto": "Gosto de cuidar da saúde e do bem-estar de outras pessoas", "area": "biologicas"},
-    {"id": 27, "texto": "Sinto satisfação em ajudar alguém que está passando por um problema físico ou emocional", "area": "biologicas"},
-    {"id": 28, "texto": "Tenho interesse em entender como o corpo humano funciona", "area": "biologicas"},
-    {"id": 29, "texto": "Tenho curiosidade em saber como as doenças surgem e como podem ser tratadas", "area": "biologicas"},
-    {"id": 30, "texto": "Gosto de aprender sobre biologia, anatomia, química ou fisiologia", "area": "biologicas"},
-    {"id": 31, "texto": "Me interesso por assuntos como saúde, corpo humano e natureza", "area": "biologicas"},
-    {"id": 32, "texto": "Tenho paciência e gosto de ouvir os outros", "area": "biologicas"},
-    {"id": 33, "texto": "As pessoas me acham um bom ouvinte", "area": "biologicas"},
-    {"id": 34, "texto": "Procuro ver o lado positivo das pessoas", "area": "biologicas"},
-    {"id": 35, "texto": "Tenho facilidade para compreender os motivos das pessoas", "area": "biologicas"},
-    {"id": 36, "texto": "Eu me interesso pelo bem estar de pessoas e animais", "area": "biologicas"},
-    {"id": 37, "texto": "Eu não meço esforços para ajudar um amigo", "area": "biologicas"},
-    {"id": 38, "texto": "Gosto de cuidar, aconselhar, ensinar, influenciar, encorajar", "area": "biologicas"},
-    {"id": 39, "texto": "Tenho facilidade para seguir procedimentos com atenção e disciplina", "area": "biologicas"},
-    {"id": 40, "texto": "Acredito que ajudar os outros a ter uma vida melhor é uma das profissões mais importantes que existem", "area": "biologicas"},
-    
-    # --- HUMANAS (41 a 55) ---
-    {"id": 41, "texto": "Gosto de ler, escrever ou conversar sobre ideias", "area": "humanas"},
-    {"id": 42, "texto": "Gosto de desenhar, pintar ou criar coisas diferentes", "area": "humanas"},
-    {"id": 43, "texto": "Tenho vontade de ajudar pessoas, ouvir e aconselhar", "area": "humanas"},
-    {"id": 44, "texto": "Consigo explicar bem uma ideia ou assunto para os outros", "area": "humanas"},
-    {"id": 45, "texto": "Tenho boa coordenação motora e sou cuidadoso(a) com detalhes", "area": "humanas"},
-    {"id": 46, "texto": "Tenho criatividade para imaginar novas soluções ou ideias", "area": "humanas"},
-    {"id": 47, "texto": "Lido bem com pessoas e sei trabalhar em grupo", "area": "humanas"},
-    {"id": 48, "texto": "Me comunico bem e gosto de apresentar ideias", "area": "humanas"},
-    {"id": 49, "texto": "Eu entendo melhor as coisas quando gosto da pessoa que está explicando", "area": "humanas"},
-    {"id": 50, "texto": "Gosto de registrar e manter meu material escolar organizado", "area": "humanas"},
-    {"id": 51, "texto": "Eu prefiro abrir mão da minha opinião a criar um conflito entre as pessoas", "area": "humanas"},
-    {"id": 52, "texto": "Eu valorizo as críticas, sugestões e opiniões dos outros quando são ditas de maneira amigável", "area": "humanas"},
-    {"id": 53, "texto": "Numa discussão é mais importante, para mim, manter a harmonia entre as pessoas do que ganhar a discussão", "area": "humanas"},
-    {"id": 54, "texto": "Numa discussão com muitas opiniões diferentes a melhor alternativa para resolver rapidamente é fazer uma votação", "area": "humanas"},
-    {"id": 55, "texto": "Gosto de trabalhar com ideias, teorias e informação", "area": "humanas"}
+POOL_PERGUNTAS =[
+    # 📐 EXATAS (1 a 20)
+    {"id": 1, "texto": "Mexer nas configurações de apps para otimizar tudo é sua vibe?", "area": "exatas"},
+    {"id": 2, "texto": "No videogame, você foca mais na estratégia do que na história?", "area": "exatas"},
+    {"id": 3, "texto": "Fazer contas de cabeça ou dividir o PIX é moleza para você?", "area": "exatas"},
+    {"id": 4, "texto": "Curte resolver enigmas, quebra-cabeças ou bugs no PC?", "area": "exatas"},
+    {"id": 5, "texto": "Passaria horas analisando gráficos de engajamento do TikTok?", "area": "exatas"},
+    {"id": 6, "texto": "Você prefere regras claras e lógica em vez de improvisação?", "area": "exatas"},
+    {"id": 7, "texto": "Tenta arrumar o roteador sozinho antes de chamar o técnico?", "area": "exatas"},
+    {"id": 8, "texto": "Curte tentar prever resultados usando dados e probabilidades?", "area": "exatas"},
+    {"id": 9, "texto": "Organizar os arquivos do PC em pastas te dá paz de espírito?", "area": "exatas"},
+    {"id": 10, "texto": "Gostaria de aprender programação para automatizar tarefas?", "area": "exatas"},
+    {"id": 11, "texto": "Você gosta de descobrir padrões em sequências de números ou formas?", "area": "exatas"},
+    {"id": 12, "texto": "Prefere planejar os gastos do mês a gastar tudo por impulso?", "area": "exatas"},
+    {"id": 13, "texto": "Curte entender a física por trás de grandes construções ou carros?", "area": "exatas"},
+    {"id": 14, "texto": "Montar móveis seguindo o manual sozinho é um desafio divertido?", "area": "exatas"},
+    {"id": 15, "texto": "Você prefere respostas exatas (tipo sim ou não) a respostas vagas?", "area": "exatas"},
+    {"id": 16, "texto": "Acha interessante como a criptografia protege seus dados nas redes?", "area": "exatas"},
+    {"id": 17, "texto": "Tem curiosidade em saber como funcionam os algoritmos de busca?", "area": "exatas"},
+    {"id": 18, "texto": "Mapas, tabelas e infográficos são fáceis de ler para você?", "area": "exatas"},
+    {"id": 19, "texto": "Você prefere jogos de tabuleiro táticos (tipo Xadrez) a jogos de pura sorte?", "area": "exatas"},
+    {"id": 20, "texto": "Tem facilidade para pensar de forma geométrica ou espacial?", "area": "exatas"},
+
+    # 🌍 HUMANAS (21 a 40)
+    {"id": 21, "texto": "Você repara muito no comportamento e no sentimento das pessoas?", "area": "humanas"},
+    {"id": 22, "texto": "Curte entender o impacto social das polêmicas do Twitter/X?", "area": "humanas"},
+    {"id": 23, "texto": "Gosta de debates profundos sobre atualidades ou filosofia?", "area": "humanas"},
+    {"id": 24, "texto": "Maratonar documentários de True Crime é seu rolê ideal?", "area": "humanas"},
+    {"id": 25, "texto": "Você é a pessoa que sempre ouve os desabafos dos amigos?", "area": "humanas"},
+    {"id": 26, "texto": "Tem interesse em criar campanhas publicitárias ou roteiros?", "area": "humanas"},
+    {"id": 27, "texto": "Prefere séries focadas no drama e na mente dos personagens?", "area": "humanas"},
+    {"id": 28, "texto": "Curte aprender sobre culturas, idiomas e história antiga?", "area": "humanas"},
+    {"id": 29, "texto": "Defende causas sociais e minorias com unhas e dentes?", "area": "humanas"},
+    {"id": 30, "texto": "Tem facilidade para liderar equipes e resolver tretas de grupo?", "area": "humanas"},
+    {"id": 31, "texto": "Escrever redações, textos ou expressar ideias em palavras é fácil para você?", "area": "humanas"},
+    {"id": 32, "texto": "Você se interessa por museus, arte ou manifestações culturais?", "area": "humanas"},
+    {"id": 33, "texto": "Gosta de analisar discursos e propagandas para ver o que há por trás?", "area": "humanas"},
+    {"id": 34, "texto": "Entender as motivações históricas de uma sociedade te chama atenção?", "area": "humanas"},
+    {"id": 35, "texto": "Você costuma se colocar no lugar do outro antes de julgar uma ação?", "area": "humanas"},
+    {"id": 36, "texto": "Acha interessante entender como as gírias e os idiomas evoluem?", "area": "humanas"},
+    {"id": 37, "texto": "Curte a área de eventos, comunicação, podcasts ou jornalismo?", "area": "humanas"},
+    {"id": 38, "texto": "O bem-estar e os direitos da sua comunidade são prioridades para você?", "area": "humanas"},
+    {"id": 39, "texto": "Gosta de entender os mistérios da mente e dos transtornos psicológicos?", "area": "humanas"},
+    {"id": 40, "texto": "Se sente confortável defendendo uma ideia em público ou em voz alta?", "area": "humanas"},
+
+    # 🌿 BIOLÓGICAS (41 a 60)
+    {"id": 41, "texto": "É a primeira pessoa a socorrer quem passa mal no rolê?", "area": "biologicas"},
+    {"id": 42, "texto": "Vê um bicho de rua machucado e já quer cuidar ou pesquisar sobre?", "area": "biologicas"},
+    {"id": 43, "texto": "Acha fascinante entender como o corpo humano funciona por dentro?", "area": "biologicas"},
+    {"id": 44, "texto": "Curte a ideia de fazer experimentos científicos em laboratório?", "area": "biologicas"},
+    {"id": 45, "texto": "Prefere rolês na natureza do que em locais fechados e tecnológicos?", "area": "biologicas"},
+    {"id": 46, "texto": "Olha a tabela nutricional dos alimentos por pura curiosidade?", "area": "biologicas"},
+    {"id": 47, "texto": "Filmes de vírus ou apocalipse te fazem pensar em ciência real?", "area": "biologicas"},
+    {"id": 48, "texto": "Assuntos como sustentabilidade e eco-friendly te atraem?", "area": "biologicas"},
+    {"id": 49, "texto": "Cuidar de plantas ou estudar ecossistemas te interessa?", "area": "biologicas"},
+    {"id": 50, "texto": "Trabalhar diretamente para salvar vidas ou proteger a saúde do planeta te motiva?", "area": "biologicas"},
+    {"id": 51, "texto": "Tem curiosidade sobre o mundo microscópico, células e mutações?", "area": "biologicas"},
+    {"id": 52, "texto": "Você se interessa por anatomia, funcionamento dos órgãos ou cirurgias?", "area": "biologicas"},
+    {"id": 53, "texto": "Acompanha notícias sobre biologia marinha ou novas espécies?", "area": "biologicas"},
+    {"id": 54, "texto": "Entender como os remédios ou vacinas agem no corpo te desperta interesse?", "area": "biologicas"},
+    {"id": 55, "texto": "Você gostaria de entender a fundo o comportamento e instinto dos animais?", "area": "biologicas"},
+    {"id": 56, "texto": "A biotecnologia e a modificação genética aplicadas à saúde te fascinam?", "area": "biologicas"},
+    {"id": 57, "texto": "Você lida bem com a visão de machucados ou sangue sem passar mal?", "area": "biologicas"},
+    {"id": 58, "texto": "Gosta de jardinagem, hortas ou de entender o ciclo dos vegetais?", "area": "biologicas"},
+    {"id": 59, "texto": "Tem interesse em estudar como a química cerebral afeta nossas emoções?", "area": "biologicas"},
+    {"id": 60, "texto": "Proteger a biodiversidade e os oceanos é uma causa urgente para você?", "area": "biologicas"}
 ]
 
 PESOS_AREA = {
@@ -141,10 +146,11 @@ def calcular_resultado(submissao: QuizSubmission):
     areas_vencedoras = [area for area, pontos in pontuacoes.items() if pontos == max_pontos]
     
     if len(areas_vencedoras) > 1:
-        resultado_texto = f"Você tem aptidão para múltiplas áreas: {', '.join(areas_vencedoras).upper()}!"
-        imagem_url = IMAGENS_RESULTADO.get(areas_vencedoras[0], "")
+        areas_formatadas = " e ".join([area.upper() for area in areas_vencedoras])
+        resultado_texto = f"Uau! Você tem forte aptidão para múltipas áreas: {areas_formatadas}! 🌟"
+        imagem_url = IMAGENS_RESULTADO.get("empate", "link_da_imagem.jpg")
     else:
-        resultado_texto = f"Seu perfil predominante é: {areas_vencedoras[0].upper()}"
+        resultado_texto = ""
         imagem_url = IMAGENS_RESULTADO.get(areas_vencedoras[0], "")
         
     return {
