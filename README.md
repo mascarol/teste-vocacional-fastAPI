@@ -32,9 +32,11 @@ O projeto adota uma estrutura limpa, onde o próprio servidor FastAPI fica respo
     ├── index.html          # Estrutura da Interface de Usuário
     ├── style.css           # Estilização e Design Responsivo
     ├── vocacional.js       # Consumo Assíncrono da API (Fetch API)
-    └── imagens/            # Assets visuais de retorno (exatas.png, humanas.png...)
+    └── imagens/            # Assets visuais de retorno (exatas.png, humanas.png...).
+```
+---
 
-🔌 Documentação da API (Endpoints REST)
+## 🔌 Documentação da API (Endpoints REST)
 1. Obter Perguntas do Teste
 
     Rota: GET /api/perguntas
@@ -64,8 +66,9 @@ O projeto adota uma estrutura limpa, onde o próprio servidor FastAPI fica respo
         {"pergunta_id": 45, "valor": "NÃO"}
       ]
     }
+---
 
-🔧 Configuração e Execução do Ambiente
+## 🔧 Configuração e Execução do Ambiente
 Pré-requisitos
 
     Python 3.8 ou superior instalado.
@@ -102,7 +105,7 @@ Passo a Passo
     Acesse a aplicação:
     Abra o seu navegador e navegue até http://127.0.0.1:8000.
 
-🛠️ Detalhes Técnicos de Implementação
+## 🛠️ Detalhes Técnicos de Implementação
 
     Suporte a CORS (Cross-Origin Resource Sharing): A API já possui Middleware de CORS totalmente configurado no main.py, permitindo que o backend seja consumido de forma desacoplada por servidores de frontend externos (ex: Live Server, Netlify, Vercel) sem bloqueios de segurança.
 
