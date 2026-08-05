@@ -99,10 +99,15 @@ async function finalizarQuiz() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-
+    
+        const payload = {
+            nome: document.getElementById("nome")?.value || "Não informado",
+            telefone: document.getElementById("telefone")?.value || "Não informado",
+            respostas: respostas
+        };
         if (!response.ok) throw new Error("Erro ao salvar resultado na API");
         
-        // O Python calcula tudo e nos devolve o resultado mastigadinho!
+        // O Python calcula tudo e nos devolve o resultado
         const dadosResposta = await response.json();
 
         exibirTelaFinal(dadosResposta);

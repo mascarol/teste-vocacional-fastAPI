@@ -149,6 +149,8 @@ class RespostaItem(BaseModel):
     escolha: str
 
 class QuizSubmission(BaseModel):
+    nome: str = "Não informado"
+    telefone: str = "Não informado"
     respostas: list[RespostaItem]
 
 # --- ENDPOINTS DA API ---
