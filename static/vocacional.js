@@ -1,5 +1,12 @@
-// CONFIGURAÇÃO DA API (Deixe vazio para usar a rota relativa)
-const API_BASE_URL = ""; 
+// CONFIGURAÇÃO DA API
+const API_BASE_URL = "";
+const somClique = new Audio('/static/click.mp3');
+const somResultado = new Audio('/static/resultado.mp3');
+const somErro = new Audio('/static/erro.mp3');
+
+somClique.volume = 0.5;
+somResultado.volume = 0.8;
+somErro.volume = 0.8;
 
 let perguntasSorteadas = [];
 let respostas = [];
@@ -66,6 +73,10 @@ function mostrarPerguntaDaVez() {
 
 // 3. PROCESSA O CLIQUE E PREPARA OS DADOS PARA O PYTHON
 function processarResposta(valor, botao) {
+    // Som do Clique
+    somClique.currentTime = 0;
+    somClique.play().catch(e => console.log(e));
+
     const pergunta = perguntasSorteadas[indiceAtual];
     
     respostas[indiceAtual] = {
@@ -141,6 +152,8 @@ async function finalizarQuiz() {
 
     } catch (error) {
         console.error("Erro ao enviar resultado:", error);
+        somErro.currentTime = 0;
+        somErro.play().catch(e => console.log(e));
         quizContainer.innerHTML = `
             <div class="quiz-card">
                 <h3>Erro ao salvar</h3>
@@ -152,6 +165,9 @@ async function finalizarQuiz() {
 
 // 6. EXIBE O RESULTADO FINAL VINDO DO BACKEND
 function exibirTelaFinal(dadosResposta) {
+    somResultado.currentTime = 0;
+    somResultado.play().catch(e => console.log(e));
+    
     const quizContainer = document.getElementById("quiz-container");
     
     const textoResultado = dadosResposta.texto_completo;
