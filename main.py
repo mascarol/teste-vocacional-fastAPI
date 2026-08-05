@@ -1,15 +1,19 @@
 import os
+import json
 import random
+from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import gspread
+from google.oauth2.service_account import Credentials
 
 app = FastAPI()
 
-# ⚠️ Habilita o CORS para que qualquer frontend (de qualquer origem) consiga consumir sua API
+# ⚠️ Habilita o CORS para que qualquer frontend consiga consumir sua API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -18,13 +22,48 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- CONFIGURAÇÃO DO GOOGLE SHEETS / DRIVE ---
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+def salvar_no_google_sheets(area_vencedora: str, pontuacoes: dict):
+    """
+    Envia o resultado do teste direto para uma planilha salva no Google Drive.
+    """
+    try:
+        creds_json = os.environ.get("GOOGLE_CREDENTIALS")
+        if not creds_json:
+            print("⚠️ Variável GOOGLE_CREDENTIALS não configurada no servidor.")
+            return
+
+        creds_dict = json.loads(creds_json)
+        credentials = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+        client = gspread.authorize(credentials)
+
+        # Nome exato da planilha criada no seu Google Drive
+        sheet = client.open("Respostas Teste Vocacional").sheet1
+        
+        data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        exatas = round(pontuacoes.get("exatas", 0), 1)
+        humanas = round(pontuacoes.get("humanas", 0), 1)
+        biologicas = round(pontuacoes.get("biologicas", 0), 1)
+
+        # Adiciona uma nova linha na planilha
+        sheet.append_row([data_hora, area_vencedora, exatas, humanas, biologicas])
+        print("✅ Resultado salvo com sucesso no Google Sheets!")
+    except Exception as e:
+        print(f"❌ Erro ao salvar no Google Sheets: {e}")
+
+
 # --- CONFIGURAÇÃO DOS CAMINHOS ---
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
-# Pool com as 55 perguntas originais
-POOL_PERGUNTAS =[
+# Pool com as 60 perguntas
+POOL_PERGUNTAS = [
     # 📐 EXATAS (1 a 20)
     {"id": 1, "texto": "Mexer nas configurações de apps para otimizar tudo é sua vibe?", "area": "exatas"},
     {"id": 2, "texto": "No videogame, você foca mais na estratégia do que na história?", "area": "exatas"},
@@ -104,7 +143,7 @@ IMAGENS_RESULTADO = {
     "biologicas": "/static/biologicas.png"
 }
 
-# --- MODELOS DE ENTRADA (VALIDAÇÃO DE DADOS) ---
+# --- MODELOS DE ENTRADA ---
 class RespostaItem(BaseModel):
     pergunta_id: int
     escolha: str
@@ -117,7 +156,7 @@ class QuizSubmission(BaseModel):
 @app.get("/api/perguntas")
 def obter_perguntas_sorteadas():
     """
-    Sorteia 7 perguntas aleatórias do pool de 55 e envia para o frontend.
+    Sorteia 7 perguntas aleatórias do pool de 60 e envia para o frontend.
     """
     qtd_sorteio = min(len(POOL_PERGUNTAS), 7)
     perguntas_sorteadas = random.sample(POOL_PERGUNTAS, qtd_sorteio)
@@ -126,7 +165,7 @@ def obter_perguntas_sorteadas():
 @app.post("/api/resultado")
 def calcular_resultado(submissao: QuizSubmission):
     """
-    Processa as respostas recebidas do frontend, calcula os pesos e retorna o perfil ideal.
+    Processa as respostas, calcula as pontuações, envia os dados para o Google Sheets e retorna o resultado.
     """
     pontuacoes = {"exatas": 0.0, "humanas": 0.0, "biologicas": 0.0}
     mapa_perguntas = {p["id"]: p for p in POOL_PERGUNTAS}
@@ -147,12 +186,18 @@ def calcular_resultado(submissao: QuizSubmission):
     
     if len(areas_vencedoras) > 1:
         areas_formatadas = " e ".join([area.upper() for area in areas_vencedoras])
-        resultado_texto = f"Uau! Você tem forte aptidão para múltipas áreas: {areas_formatadas}! 🌟"
-        imagem_url = IMAGENS_RESULTADO.get("empate", "link_da_imagem.jpg")
+        resultado_texto = f"Uau! Você tem forte aptidão para múltiplas áreas: {areas_formatadas}! 🌟"
+        imagem_url = IMAGENS_RESULTADO.get("empate", "/static/empate.png")
+        resultado_salvar = f"EMPATE ({areas_formatadas})"
     else:
-        resultado_texto = ""
-        imagem_url = IMAGENS_RESULTADO.get(areas_vencedoras[0], "")
+        area_ganhadora = areas_vencedoras[0]
+        resultado_texto = f"Seu perfil principal é: {area_ganhadora.upper()}! 🎯"
+        imagem_url = IMAGENS_RESULTADO.get(area_ganhadora, "")
+        resultado_salvar = area_ganhadora.upper()
         
+    # Envia os resultados para o Google Sheets em segundo plano
+    salvar_no_google_sheets(resultado_salvar, pontuacoes)
+
     return {
         "areas_vencedoras": areas_vencedoras,
         "texto_completo": resultado_texto,
@@ -160,22 +205,15 @@ def calcular_resultado(submissao: QuizSubmission):
         "pontuacoes": pontuacoes
     }
 
-
 # --- ROTEAMENTO DE ARQUIVOS ESTÁTICOS ---
 
 @app.get("/")
 def pagina_inicial():
-    """
-    Entrega o index.html principal de forma inteligente.
-    """
     if os.path.exists(BASE_DIR / "index.html"):
         return FileResponse(BASE_DIR / "index.html")
     elif os.path.exists(STATIC_DIR / "index.html"):
         return FileResponse(STATIC_DIR / "index.html")
     return {"erro": "index.html nao foi encontrado em nenhuma pasta."}
 
-# Mapeia a pasta /static (Caso o HTML procure por "static/style.css")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-# Mapeia a raiz do projeto (Caso o HTML procure por "style.css" na pasta principal)
 app.mount("/", StaticFiles(directory=BASE_DIR), name="raiz")
