@@ -22,49 +22,55 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- CONFIGURAÇÃO DOS CAMINHOS (Definidos no início para evitar NameError) ---
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+STATIC_DIR.mkdir(exist_ok=True)
+
 # --- CONFIGURAÇÃO DO GOOGLE SHEETS / DRIVE ---
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
 
-def salvar_no_google_sheets(area_vencedora: str, pontuacoes: dict):
-    """
-    Envia o resultado do teste direto para uma planilha salva no Google Drive.
-    """
+# Inicialização do cliente do gspread:
+try:
+    if os.getenv("GOOGLE_CREDENTIALS"):
+        # Se você usa variável de ambiente no Render (JSON em string)
+        creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+        creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+    else:
+        # Se você usa o arquivo credentials.json localmente
+        creds_file = BASE_DIR / "credentials.json"
+        creds = Credentials.from_service_account_file(creds_file, scopes=SCOPES)
+    
+    client = gspread.authorize(creds)
+except Exception as err:
+    print(f"Aviso: Não foi possível autenticar o Google Sheets no início: {err}")
+    client = None
+
+
+def salvar_no_google_sheets(nome: str, telefone: str, area_vencedora: str, pontuacoes: dict):
     try:
-        creds_json = os.environ.get("GOOGLE_CREDENTIALS")
-        if not creds_json:
-            print("⚠️ Variável GOOGLE_CREDENTIALS não configurada no servidor.")
+        if not client:
+            print("Google Sheets client não está autenticado.")
             return
 
-        creds_dict = json.loads(creds_json)
-        credentials = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-        client = gspread.authorize(credentials)
-
-        # Nome exato da planilha criada no seu Google Drive
         sheet = client.open("Respostas Teste Vocacional").sheet1
-        
+
         data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         exatas = round(pontuacoes.get("exatas", 0), 1)
         humanas = round(pontuacoes.get("humanas", 0), 1)
         biologicas = round(pontuacoes.get("biologicas", 0), 1)
 
-        # Adiciona uma nova linha na planilha
-        sheet.append_row([data_hora, area_vencedora, exatas, humanas, biologicas])
-        print("✅ Resultado salvo com sucesso no Google Sheets!")
+        # Adiciona Nome e Telefone nas colunas antes do resultado e pontuações
+        sheet.append_row([data_hora, nome, telefone, area_vencedora, exatas, humanas, biologicas])
+
     except Exception as e:
-        print(f"❌ Erro ao salvar no Google Sheets: {e}")
+        print(f"Erro ao salvar no Google Sheets: {e}")
 
-
-# --- CONFIGURAÇÃO DOS CAMINHOS ---
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-STATIC_DIR.mkdir(exist_ok=True)
-
-# Pool com as 60 perguntas
 POOL_PERGUNTAS = [
-    # 📐 EXATAS (1 a 20)
+    # EXATAS (1 a 20)
     {"id": 1, "texto": "Mexer nas configurações de apps para otimizar tudo é sua vibe?", "area": "exatas"},
     {"id": 2, "texto": "No videogame, você foca mais na estratégia do que na história?", "area": "exatas"},
     {"id": 3, "texto": "Fazer contas de cabeça ou dividir o PIX é moleza para você?", "area": "exatas"},
@@ -86,7 +92,7 @@ POOL_PERGUNTAS = [
     {"id": 19, "texto": "Você prefere jogos de tabuleiro táticos (tipo Xadrez) a jogos de pura sorte?", "area": "exatas"},
     {"id": 20, "texto": "Tem facilidade para pensar de forma geométrica ou espacial?", "area": "exatas"},
 
-    # 🌍 HUMANAS (21 a 40)
+    # HUMANAS (21 a 40)
     {"id": 21, "texto": "Você repara muito no comportamento e no sentimento das pessoas?", "area": "humanas"},
     {"id": 22, "texto": "Curte entender o impacto social das polêmicas do Twitter/X?", "area": "humanas"},
     {"id": 23, "texto": "Gosta de debates profundos sobre atualidades ou filosofia?", "area": "humanas"},
@@ -108,7 +114,7 @@ POOL_PERGUNTAS = [
     {"id": 39, "texto": "Gosta de entender os mistérios da mente e dos transtornos psicológicos?", "area": "humanas"},
     {"id": 40, "texto": "Se sente confortável defendendo uma ideia em público ou em voz alta?", "area": "humanas"},
 
-    # 🌿 BIOLÓGICAS (41 a 60)
+    # BIOLÓGICAS (41 a 60)
     {"id": 41, "texto": "É a primeira pessoa a socorrer quem passa mal no rolê?", "area": "biologicas"},
     {"id": 42, "texto": "Vê um bicho de rua machucado e já quer cuidar ou pesquisar sobre?", "area": "biologicas"},
     {"id": 43, "texto": "Acha fascinante entender como o corpo humano funciona por dentro?", "area": "biologicas"},
@@ -197,8 +203,8 @@ def calcular_resultado(submissao: QuizSubmission):
         imagem_url = IMAGENS_RESULTADO.get(area_ganhadora, "")
         resultado_salvar = area_ganhadora.upper()
         
-    # Envia os resultados para o Google Sheets em segundo plano
-    salvar_no_google_sheets(resultado_salvar, pontuacoes)
+    # Envia os resultados para o Google Sheets
+    salvar_no_google_sheets(submissao.nome, submissao.telefone, resultado_salvar, pontuacoes)
 
     return {
         "areas_vencedoras": areas_vencedoras,
