@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DA API (Deixe vazio para usar a rota relativa com o Ngrok/Localhost)
+// CONFIGURAÇÃO DA API (Deixe vazio para usar a rota relativa)
 const API_BASE_URL = ""; 
 
 let perguntasSorteadas = [];
@@ -59,7 +59,8 @@ function mostrarPerguntaDaVez() {
 
         quizContainer.appendChild(card);
     } else {
-        finalizarQuiz();
+        // QUANDO AS PERGUNTAS ACABAM, EXIBE OS CAMPOS NOME/TELEFONE
+        exibirCamposIdentificacao();
     }
 }
 
@@ -67,7 +68,6 @@ function mostrarPerguntaDaVez() {
 function processarResposta(valor, botao) {
     const pergunta = perguntasSorteadas[indiceAtual];
     
-    // Monta exatamente o formato que o seu Pydantic espera no main.py
     respostas[indiceAtual] = {
         pergunta_id: pergunta.id, 
         escolha: valor
@@ -81,35 +81,62 @@ function processarResposta(valor, botao) {
     }, 320);
 }
 
-// 4. ENVIA AS RESPOSTAS PARA O BACKEND CALCULAR
+// 4. EXIBE OS CAMPOS DE IDENTIFICAÇÃO (NOME E TELEFONE)
+function exibirCamposIdentificacao() {
+    const quizContainer = document.getElementById("quiz-container");
+    quizContainer.innerHTML = `
+        <div class="quiz-card">
+            <span class="progresso-contador">Quase Lá!</span>
+            <div class="pergunta-texto">
+                Preencha seus dados para visualizar o resultado:
+            </div>
+
+            <div class="form-identificacao">
+                <div class="campo-grupo">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
+                </div>
+                <div class="campo-grupo">
+                    <label for="telefone">WhatsApp / Telefone:</label>
+                    <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999" required>
+                </div>
+                
+                <button class="btn-enviar-resultado" onclick="finalizarQuiz()">
+                    Ver resultado!
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// 5. ENVIA AS RESPOSTAS PARA O BACKEND CALCULAR
 async function finalizarQuiz() {
+    // Captura os valores digitados nos inputs antes de limpar a tela
+    const nomeValor = document.getElementById("nome")?.value || "Não informado";
+    const telefoneValor = document.getElementById("telefone")?.value || "Não informado";
+
     const quizContainer = document.getElementById("quiz-container");
     quizContainer.innerHTML = "<p class='loading'>Processando e salvando seu perfil...</p>";
 
+    // Monta o payload completo antes do fetch
     const payload = {
+        nome: nomeValor,
+        telefone: telefoneValor,
         respostas: respostas
     };
 
     console.log("Enviando resultados para a API:", payload);
 
     try {
-        // Enviando para a rota correta no singular: /api/resultado
         const response = await fetch(`${API_BASE_URL}/api/resultado`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
     
-        const payload = {
-            nome: document.getElementById("nome")?.value || "Não informado",
-            telefone: document.getElementById("telefone")?.value || "Não informado",
-            respostas: respostas
-        };
-        if (!response.ok) throw new Error("Erro ao salvar resultado na API");
+        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
         
-        // O Python calcula tudo e nos devolve o resultado
         const dadosResposta = await response.json();
-
         exibirTelaFinal(dadosResposta);
 
     } catch (error) {
@@ -123,34 +150,6 @@ async function finalizarQuiz() {
     }
 }
 
-// 6. EXIBE OS CAMPOS DE IDENTIFICAÇÃO (NOME E TELEFONE) ANTES DE FINALIZAR
-function exibirCamposIdentificacao() {
-    const quizContainer = document.getElementById("quiz-container");
-    quizContainer.innerHTML = `
-        <div class="quiz-card">
-            <span class="progresso-contador"> Quase Lá! </span>
-            <div class="pergunta-texto">
-                Preencha seus dados para visualizar o resultado:
-            </div>
-
-            <div class="form-identificacao">
-                <div class="campo-grupo">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
-                </div>
-            <div class="campo-grupo">
-                    <label for="telefone">WhatsApp / Telefone</label>
-                    <input type="tel" id="telefone" placeholder="(11) 99999-9999" required>
-                </div>
-                
-                <button class="btn-enviar-resultado" onclick="finalizarQuiz()">
-                Ver resultado!
-                </buttton>
-            </div>
-        </div>
-    `;
-}
-
 // 6. EXIBE O RESULTADO FINAL VINDO DO BACKEND
 function exibirTelaFinal(dadosResposta) {
     const quizContainer = document.getElementById("quiz-container");
@@ -160,7 +159,7 @@ function exibirTelaFinal(dadosResposta) {
 
     quizContainer.innerHTML = `
         <div class="quiz-card resultado-final" style="text-align: center;">
-            <h3 style="color: #003263; font-size: 1.5em; margin-bottom: 10px;">Parabéns! Teste Concluído 🎉</h3>
+            <h3 style="color: #b6babe; font-size: 1.5em; margin-bottom: 10px;">Parabéns! Teste Concluído 🎉</h3>
             <p style="font-size: 1.1em; margin-bottom: 20px;">${textoResultado}</p>
             ${imagemUrl ? `<img src="${imagemUrl}" alt="Resultado Vocacional" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">` : ""}
         </div>
