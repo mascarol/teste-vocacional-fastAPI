@@ -18,13 +18,13 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    background-attachment: fixed; /* Deixa o fundo estático e elegante ao rolar */
+    background-attachment: fixed;
 }
 
 /* Base do container que segura os cards */
 #quiz-container {
     width: 100%;
-    max-width: 520px; /* Largura ideal para leitura no desktop */
+    max-width: 520px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -82,7 +82,7 @@ body {
    ========================================================================== */
 .botoes-container {
     display: flex;
-    flex-direction: column; /* Botões empilhados para melhor usabilidade */
+    flex-direction: column;
     gap: 14px;
 }
 
@@ -100,7 +100,7 @@ body {
     outline: none;
 }
 
-/* Efeitos de Hover (Passar o mouse) */
+
 .btn:hover {
     background-color: #f7fafc;
     border-color: #cbd5e0;
@@ -175,8 +175,8 @@ body {
    ========================================================================== */
 @media (max-width: 480px) {
     body {
-        padding: 15px; /* Reduz as bordas externas no celular */
-        justify-content: center; /* Garante centralização vertical perfeita */
+        padding: 15px;
+        justify-content: center;
     }
 
     #quiz-container {
@@ -184,17 +184,81 @@ body {
     }
 
     .quiz-card {
-        padding: 25px 20px; /* Menos espaço interno para dar foco ao conteúdo */
+        padding: 25px 20px;
         border-left: 6px solid #0030a6;
     }
 
     .pergunta-texto {
-        font-size: 1.2em; /* Texto um pouquinho menor para não quebrar tantas linhas */
+        font-size: 1.2em;
         margin-bottom: 25px;
     }
 
     .btn {
-        padding: 12px; /* Botão ligeiramente mais compacto, mas fácil de tocar */
+        padding: 12px;
         font-size: 0.95em;
     }
+}
+
+/* ==========================================================================
+   6. TELA DE IDENTIFICAÇÃO (NOME E TELEFONE)
+   ========================================================================== */
+.form-identificacao {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.campo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.campo-grupo label {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #A5FBFF;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.campo-grupo input {
+    width: 100%;
+    padding: 14px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #2d3748;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.campo-grupo input:focus {
+    border-color: #343dfc;
+    box-shadow: 0 0 8px rgba(52, 61, 252, 0.4);
+}
+
+.btn-enviar-resultado {
+    width: 100%;
+    padding: 16px;
+    margin-top: 10px;
+    font-size: 1.05em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    border-radius: 8px;
+    background-color: #343dfc;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-enviar-resultado:hover {
+    background-color: #2b6cb0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }

@@ -123,7 +123,35 @@ async function finalizarQuiz() {
     }
 }
 
-// 5. EXIBE O RESULTADO FINAL VINDO DO BACKEND
+// 6. EXIBE OS CAMPOS DE IDENTIFICAÇÃO (NOME E TELEFONE) ANTES DE FINALIZAR
+function exibirCamposIdentificacao() {
+    const quizContainer = document.getElementById("quiz-container");
+    quizContainer.innerHTML = `
+        <div class="quiz-card">
+            <span class="progresso-contador"> Quase Lá! </span>
+            <div class="pergunta-texto">
+                Preencha seus dados para visualizar o resultado:
+            </div>
+
+            <div class="form-identificacao">
+                <div class="campo-grupo">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
+                </div>
+            <div class="campo-grupo">
+                    <label for="telefone">WhatsApp / Telefone</label>
+                    <input type="tel" id="telefone" placeholder="(11) 99999-9999" required>
+                </div>
+                
+                <button class="btn-enviar-resultado" onclick="finalizarQuiz()">
+                Ver resultado!
+                </buttton>
+            </div>
+        </div>
+    `;
+}
+
+// 6. EXIBE O RESULTADO FINAL VINDO DO BACKEND
 function exibirTelaFinal(dadosResposta) {
     const quizContainer = document.getElementById("quiz-container");
     
