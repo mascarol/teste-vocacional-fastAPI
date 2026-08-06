@@ -3,7 +3,7 @@ import json
 import random
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -13,7 +13,7 @@ from google.oauth2.service_account import Credentials
 
 app = FastAPI()
 
-# ⚠️ Habilita o CORS para que qualquer frontend consiga consumir sua API
+# Habilita o CORS para que qualquer frontend consiga consumir sua API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -50,7 +50,7 @@ except Exception as err:
     client = None
 
 
-def salvar_no_google_sheets(nome: str, telefone: str, area_vencedora: str, pontuacoes: dict):
+def salvar_no_google_sheets(usuario_id: str,nome: str, telefone: str, area_vencedora: str, pontuacoes: dict):
     try:
         if not client:
             print("Google Sheets client não está autenticado.")
@@ -64,7 +64,15 @@ def salvar_no_google_sheets(nome: str, telefone: str, area_vencedora: str, pontu
         biologicas = round(pontuacoes.get("biologicas", 0), 1)
 
         # Adiciona Nome e Telefone nas colunas antes do resultado e pontuações
-        sheet.append_row([data_hora, nome, telefone, area_vencedora, exatas, humanas, biologicas])
+        sheet.append_row([
+            usuario_id,
+            data_hora,
+            nome,
+            telefone,
+            area_vencedora,
+            exatas,
+            humanas,
+            biologicas] )
 
     except Exception as e:
         print(f"Erro ao salvar no Google Sheets: {e}")
@@ -171,9 +179,9 @@ def obter_perguntas_sorteadas():
     return perguntas_sorteadas
 
 @app.post("/api/resultado")
-def calcular_resultado(submissao: QuizSubmission):
+def calcular_resultado(submissao: QuizSubmission, background_tasks: BackgroundTasks):
     """
-    Processa as respostas, calcula as pontuações, envia os dados para o Google Sheets e retorna o resultado.
+    Processa as respostas, calcula as pontuações, gera um ID único e salva no Google Sheets em segundo plano.
     """
     pontuacoes = {"exatas": 0.0, "humanas": 0.0, "biologicas": 0.0}
     mapa_perguntas = {p["id"]: p for p in POOL_PERGUNTAS}
@@ -203,10 +211,27 @@ def calcular_resultado(submissao: QuizSubmission):
         imagem_url = IMAGENS_RESULTADO.get(area_ganhadora, "")
         resultado_salvar = area_ganhadora.upper()
         
-    # Envia os resultados para o Google Sheets
-    salvar_no_google_sheets(submissao.nome, submissao.telefone, resultado_salvar, pontuacoes)
+    exatas = round(pontuacoes.get("exatas", 0), 1)
+    humanas = round(pontuacoes.get("humanas", 0), 1)
+    biologicas = round(pontuacoes.get("biologicas", 0), 1)
+
+    # Gera o ID único do usuário
+    usuario_id = f"USR-{random.randint(1000, 9999)}"
+
+    # Executa o envio para o Sheets em segundo plano
+    background_tasks.add_task(
+        salvar_no_google_sheets, 
+        usuario_id,
+        submissao.nome, 
+        submissao.telefone, 
+        resultado_salvar, 
+        exatas, 
+        humanas, 
+        biologicas
+    )
 
     return {
+        "usuario_id": usuario_id,
         "areas_vencedoras": areas_vencedoras,
         "texto_completo": resultado_texto,
         "imagem_url": imagem_url,
