@@ -43,18 +43,14 @@ O projeto visa mitigar a escassez de ferramentas acessíveis de orientação voc
 
 ## 📐 Arquitetura do Sistema
 
-O pipeline de dados opera com separação entre a resposta ao cliente e o salvamento em banco/planilha, garantindo zero latência no frontend:
+O pipeline de dados opera com separação entre a resposta ao cliente e a gravação na planilha, garantindo performance e zero latência no frontend:
 
-[ Client / Frontend ] ── (HTTP POST / JSON) ──► [ API FastAPI ]
-                                                      │
-     ┌────────────────────────────────────────────────┴────────────────────────────────┐
-     ▼                                                                                 ▼
-[ Resposta Imediata ]                                                         [ Background Task ]
-(Retorna pontuação e perfil)                                              (Salva na planilha em 2º plano)
-                                                                                       │
-                                                                                       ▼
-                                                                           [ Google Sheets API ]
-
+```mermaid
+graph TD
+    A[Client / Frontend] -->|1. HTTP POST / JSON| B[API FastAPI]
+    B -->|2. Resposta Imediata| A
+    B -->|3. Background Task| C[Google Sheets API]
+```
 ---
 
 ## 📊 Estrutura do Banco / Tabela de Dados
@@ -70,12 +66,15 @@ Os registros enviados via API são gravados na planilha seguindo a estrutura aba
 | **F** | `exatas` | Float | Pontuação ponderada calculada em Exatas | `9.3` |
 | **G** | `humanas` | Float | Pontuação ponderada calculada em Humanas | `3.3` |
 | **H** | `biologicas` | Float | Pontuação ponderada calculada em Biológicas | `6.4` |
-
 ## 🔌 Endpoints da API
 GET /api/perguntas
+
 Sorteia e retorna uma amostra de perguntas cadastradas no pool.
-Resposta (200 OK):
+
+    Resposta (200 OK):
+
 JSON
+
 [
   {
     "id": 1,
@@ -83,10 +82,15 @@ JSON
     "area": "exatas"
   }
 ]
+
 POST /api/resultado
+
 Processa as respostas do questionário, calcula as pontuações e agenda a gravação dos dados em segundo plano.
-Body da Requisição:
+
+    Body da Requisição:
+
 JSON
+
 {
   "nome": "Maria Silva",
   "telefone": "16999999999",
@@ -96,8 +100,10 @@ JSON
   ]
 }
 
-Resposta (200 OK):
+    Resposta (200 OK):
+
 JSON
+
 {
   "usuario_id": "USR-4819",
   "areas_vencedoras": ["EXATAS"],
@@ -109,3 +115,43 @@ JSON
     "biologicas": 6.4
   }
 }
+
+---
+
+## 🔧 Como Rodar o Projeto Localmente
+
+    Clone o repositório:
+    Bash
+
+    git clone [https://github.com/mascarol/teste-vocacional-fastAPI.git](https://github.com/mascarol/teste-vocacional-fastAPI.git)
+    cd teste-vocacional-fastAPI
+
+    Crie e ative um ambiente virtual:
+    Bash
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+
+    Instale as dependências:
+    Bash
+
+    pip install -r requirements.txt
+
+    Configure as credenciais do Google Sheets:
+    Coloque o arquivo credentials.json na raiz do projeto (ou configure a variável de ambiente GOOGLE_CREDENTIALS).
+
+    Inicie o servidor de desenvolvimento:
+    Bash
+
+    uvicorn main:app --reload
+
+        Ambiente Local: Acesse http://127.0.0.1:8000 no navegador.
+
+        Ambiente Online: Acesse https://teste-vocacional-fastapi.onrender.com.
+
+---
+##🔐 Variáveis de Ambiente
+
+Para implantação em serviços como Render, configure a seguinte variável no painel da plataforma (Environment Variables):
+
+    GOOGLE_CREDENTIALS: Conteúdo bruto do arquivo credentials.json formatado como string JSON.
