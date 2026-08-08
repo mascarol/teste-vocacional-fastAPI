@@ -1,112 +1,111 @@
-Markdown
+## 🎯 Teste Vocacional Digital - API & Data Analytics
 
-# 🧠 Teste Vocacional Inteligente — API REST & Frontend
-
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23f5d63b)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Google Sheets API](https://img.shields.io/badge/Google%20Sheets%20API-34A853?style=for-the-badge&logo=google-sheets&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
-Uma aplicação Full-Stack simplificada que une uma API REST robusta desenvolvida em **FastAPI** a uma interface de usuário dinâmica e responsiva (HTML5, CSS3 e JavaScript Puro). 
+Plataforma web interativa desenvolvida para aplicação de testes vocacionais direcionados a estudantes do Ensino Médio. O sistema processa as respostas em tempo real por meio de um algoritmo ponderado e realiza a persistência assíncrona dos dados para análise agregada de perfis (Exatas, Humanas e Biológicas).
 
-O projeto foi estruturado para simular um cenário real de triagem e análise comportamental, aplicando lógica de algoritmos para processar dados de entrada e retornar diagnósticos personalizados com base em perfis de aptidão.
-
----
-
-## 🎯 Funcionalidades Chave
-
-* **Algoritmo de Randomização:** Seleção inteligente e randômica de 7 perguntas distintas a partir de um banco de dados estático contendo 60 questões mapeadas.
-* **Processamento de Matriz de Respostas:** Endpoint preparado para receber e computar as respostas do usuário (`SIM` / `TALVEZ` / `NÃO`), aplicando pesos lógicos para a tomada de decisão.
-* **Mapeamento de Aptidão:** Motor de regras que calcula e define a dominância entre três grandes áreas de conhecimento: *Exatas*, *Humanas* ou *Biológicas*.
-* **Entrega Dinâmica de Asset:** Retorno estruturado via API contendo o diagnóstico textual e o caminho do asset visual (imagem) correspondente ao resultado final.
+🌐 **Aplicação em Produção:** 
+[https://teste-vocacional-fastapi.onrender.com]
+(https://teste-vocacional-fastapi.onrender.com)
 
 ---
 
-## 📂 Arquitetura e Estrutura do Projeto
+## 📌 Sumário
 
-O projeto adota uma estrutura limpa, onde o próprio servidor FastAPI fica responsável por expor os endpoints de dados e servir os arquivos estáticos da interface.
-
-```text
-├── main.py                 # Backend (Rotas da API REST, CORS e Servidor Estático)
-├── requisitos.txt           # Gerenciador de Dependências do ecossistema Python
-└── static/                 # Frontend Consumidor
-    ├── index.html          # Estrutura da Interface de Usuário
-    ├── style.css           # Estilização e Design Responsivo
-    ├── vocacional.js       # Consumo Assíncrono da API (Fetch API)
-    └── imagens/            # Assets visuais de retorno (exatas.png, humanas.png...).
-```
+- [Visão Geral e Impacto Social](#-visão-geral-e-impacto-social)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Arquitetura do Sistema](#-arquitetura-do-sistema)
+- [Estrutura do Banco / Tabela de Dados](#-estrutura-do-banco--tabela-de-dados)
+- [Endpoints da API](#-endpoints-da-api)
 ---
 
-## 🔌 Documentação da API (Endpoints REST)
-1. Obter Perguntas do Teste
+## 🚀 Visão Geral e Impacto Social
 
-    Rota: GET /api/perguntas
+O projeto visa mitigar a escassez de ferramentas acessíveis de orientação vocacional no ambiente escolar, oferecendo:
+- **Resposta Instantânea:** Algoritmo de cálculo de afinidade com retorno imediato para o estudante.
+- **Gestão Baseada em Dados (*Data for Good*):** Armazenamento estruturado de dados que permite a coordenações pedagógicas mapear o perfil vocacional de turmas e planejar feiras de profissões, oficinas e ações direcionadas.
+- **Acessibilidade:** Interface leve e multiplataforma, otimizada para uso em smartphones e computadores.
 
-    Descrição: Retorna uma lista de 7 perguntas sorteadas aleatoriamente do banco de dados de triagem.
-
-    Resposta de Sucesso (JSON):
-    JSON
-
-    [
-      {"id": 12, "texto": "Você gosta de resolver problemas de lógica?"},
-      {"id": 45, "texto": "Você se interessa por anatomia humana?"}
-    ]
-
-2. Processar Resultado Vocacional
-
-    Rota: POST /api/resultado
-
-    Descrição: Recebe a matriz de respostas do usuário, calcula os pesos e retorna a área de maior afinidade profissional.
-
-    Payload de Entrada (JSON):
-    JSON
-
-    {
-      "respostas": [
-        {"pergunta_id": 12, "valor": "SIM"},
-        {"pergunta_id": 45, "valor": "NÃO"}
-      ]
-    }
 ---
 
-## 🔧 Configuração e Execução do Ambiente
-Pré-requisitos
+## 🛠️ Tecnologias Utilizadas
 
-    Python 3.8 ou superior instalado.
+- **Backend:** Python 3, FastAPI, Pydantic, Uvicorn.
+- **Persistência & Integração:** `gspread`, Google Sheets API (OAuth2 Service Account).
+- **Processamento Assíncrono:** `BackgroundTasks` do FastAPI.
+- **Frontend:** HTML5, CSS3, JavaScript (Fetch API, Audio API).
+- **Hospedagem / Deployment:** Render.
 
-Passo a Passo
+---
 
-    Clone o repositório e acesse o diretório:
-    Bash
+## 📐 Arquitetura do Sistema
 
-    git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
-    cd seu-repositorio
+O pipeline de dados opera com separação entre a resposta ao cliente e o salvamento em banco/planilha, garantindo zero latência no frontend:
 
-    Crie e ative o seu ambiente virtual (Virtualenv):
-    Bash
+[ Client / Frontend ] ── (HTTP POST / JSON) ──► [ API FastAPI ]
+                                                      │
+     ┌────────────────────────────────────────────────┴────────────────────────────────┐
+     ▼                                                                                 ▼
+[ Resposta Imediata ]                                                         [ Background Task ]
+(Retorna pontuação e perfil)                                              (Salva na planilha em 2º plano)
+                                                                                       │
+                                                                                       ▼
+                                                                           [ Google Sheets API ]
 
-    # Linux/macOS
-    python3 -m venv venv
-    source venv/bin/activate
+---
 
-    # Windows
-    python -m venv venv
-    .\venv\Scripts\activate
+## 📊 Estrutura do Banco / Tabela de Dados
 
-    Instale as dependências do projeto:
-    Bash
+Os registros enviados via API são gravados na planilha seguindo a estrutura abaixo:
+| Coluna | Campo | Tipo | Descrição | Exemplo |
+| :--- | :--- | :--- | :--- | :--- |
+| **A** | `usuario_id` | Varchar | Identificador único gerado automaticamente | `USR-8472` |
+| **B** | `data_hora` | Datetime | Data e horário da submissão | `08/08/2026 14:30:00` |
+| **C** | `nome` | Varchar | Nome do participante | `Maria Silva` |
+| **D** | `telefone` | Varchar | WhatsApp / Contato informado | `(16) 99999-9999` |
+| **E** | `area_vencedora` | Varchar | Perfil resultante (`EXATAS`, `HUMANAS`, `BIOLÓGICAS` ou `EMPATE`) | `EXATAS` |
+| **F** | `exatas` | Float | Pontuação ponderada calculada em Exatas | `9.3` |
+| **G** | `humanas` | Float | Pontuação ponderada calculada em Humanas | `3.3` |
+| **H** | `biologicas` | Float | Pontuação ponderada calculada em Biológicas | `6.4` |
 
-    pip install -r requisitos.txt
+## 🔌 Endpoints da API
+GET /api/perguntas
+Sorteia e retorna uma amostra de perguntas cadastradas no pool.
+Resposta (200 OK):
+JSON
+[
+  {
+    "id": 1,
+    "texto": "Mexer nas configurações de apps para otimizar tudo é sua vibe?",
+    "area": "exatas"
+  }
+]
+POST /api/resultado
+Processa as respostas do questionário, calcula as pontuações e agenda a gravação dos dados em segundo plano.
+Body da Requisição:
+JSON
+{
+  "nome": "Maria Silva",
+  "telefone": "16999999999",
+  "respostas": [
+    { "pergunta_id": 1, "escolha": "SIM" },
+    { "pergunta_id": 21, "escolha": "TALVEZ" }
+  ]
+}
 
-    Inicie o servidor de desenvolvimento via Uvicorn:
-    Bash
-
-    uvicorn main:app --reload
-
-    Acesse a aplicação:
-    Abra o seu navegador e navegue até http://127.0.0.1:8000.
-
-## 🛠️ Detalhes Técnicos de Implementação
-
-    Suporte a CORS (Cross-Origin Resource Sharing): A API já possui Middleware de CORS totalmente configurado no main.py, permitindo que o backend seja consumido de forma desacoplada por servidores de frontend externos (ex: Live Server, Netlify, Vercel) sem bloqueios de segurança.
-
-    Consumo Assíncrono: O arquivo vocacional.js faz uso de requisições assíncronas modernas (fetch com async/await), garantindo uma experiência de usuário fluida e sem recarregamentos de página (Single Page Application behavior).
+Resposta (200 OK):
+JSON
+{
+  "usuario_id": "USR-4819",
+  "areas_vencedoras": ["EXATAS"],
+  "texto_completo": "Seu perfil principal é: EXATAS! 🎯",
+  "imagem_url": "/static/exatas.png",
+  "pontuacoes": {
+    "exatas": 9.3,
+    "humanas": 3.3,
+    "biologicas": 6.4
+  }
+}
